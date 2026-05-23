@@ -1,0 +1,316 @@
+<div class="page-container">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Admin</p>
+      <h1>Employee Management</h1>
+      <p>Create employee accounts, assign roles and keep manager mapping updated.</p>
+    </div>
+
+    <button
+      class="btn btn-secondary"
+      type="button"
+      (click)="refreshEmployees()"
+      [disabled]="loading">
+      Refresh
+    </button>
+  </header>
+
+  <section class="summary-grid">
+    <article class="card">
+      <p>Total Employees</p>
+      <strong>{{ employees.length }}</strong>
+    </article>
+
+    <article class="card">
+      <p>Active Employees</p>
+      <strong>{{ activeEmployees }}</strong>
+    </article>
+
+    <article class="card">
+      <p>Managers</p>
+      <strong>{{ managerCount }}</strong>
+    </article>
+
+    <article class="card">
+      <p>Inactive</p>
+      <strong>{{ inactiveEmployees }}</strong>
+    </article>
+  </section>
+
+  <p *ngIf="message" class="system-message">
+    {{ message }}
+  </p>
+
+  <section class="admin-grid">
+    <form
+      class="card section employee-form"
+      #form="ngForm"
+      (ngSubmit)="saveEmployee()">
+
+      <h2>{{ editingEmployeeId ? 'Edit Employee' : 'Add Employee' }}</h2>
+
+      <div class="form-stack">
+        <label>
+          First Name
+          <input
+            name="firstName"
+            placeholder="First Name"
+            required
+            [(ngModel)]="employeeForm.firstName" />
+        </label>
+
+        <label>
+          Last Name
+          <input
+            name="lastName"
+            placeholder="Last Name"
+            required
+            [(ngModel)]="employeeForm.lastName" />
+        </label>
+
+        <label>
+          Email
+          <input
+            name="email"
+            placeholder="Email"
+            required
+            [(ngModel)]="employeeForm.email" />
+        </label>
+
+        <label>
+          Department
+          <input
+            name="department"
+            placeholder="Department"
+            required
+            [(ngModel)]="employeeForm.department" />
+        </label>
+
+        <label>
+          Role
+          <select name="role" [(ngModel)]="employeeForm.role">
+            <option>EMPLOYEE</option>
+            <option>MANAGER</option>
+            <option>FINANCE</option>
+            <option>ADMIN</option>
+          </select>
+        </label>
+
+        <label>
+          Manager
+          <select name="managerId" [(ngModel)]="employeeForm.managerId">
+            <option [ngValue]="null">No Manager</option>
+
+            @for (manager of managers; track manager.id) {
+              <option [ngValue]="manager.id">
+                {{ manager.firstName }} {{ manager.lastName }}
+              </option>
+            }
+          </select>
+        </label>
+
+        <label>
+          Password
+          <input
+            name="password"
+            type="password"
+            [placeholder]="editingEmployeeId ? 'Leave blank to keep same' : 'Password'"
+            [(ngModel)]="employeeForm.password" />
+        </label>
+
+        <label>
+          Status
+          <select name="enabled" [(ngModel)]="employeeForm.enabled">
+            <option [ngValue]="true">ACTIVE</option>
+            <option [ngValue]="false">INACTIVE</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button
+          class="btn btn-primary"
+          type="submit"
+          [disabled]="saving">
+          {{ editingEmployeeId ? 'Update' : 'Add' }} Employee
+        </button>
+
+        <button
+          *ngIf="editingEmployeeId"
+          class="btn btn-secondary"
+          type="button"
+          (click)="cancelEdit()">
+          Cancel
+        </button>
+      </div>
+    </form>
+
+    <div class="card section">
+      <div class="table-heading">
+        <div>
+          <h2>Employees</h2>
+          <p>Showing {{ filteredEmployees.length }} of {{ employees.length }}</p>
+        </div>
+      </div>
+
+      <div class="filters">
+        <input
+          name="searchText"
+          placeholder="Search name, email or department"
+          [(ngModel)]="searchText"
+          (ngModelChange)="goToFirstPage()" />
+
+        <select
+          name="selectedRole"
+          [(ngModel)]="selectedRole"
+          (ngModelChange)="goToFirstPage()">
+          <option value="ALL">All Roles</option>
+          <option value="EMPLOYEE">Employee</option>
+          <option value="MANAGER">Manager</option>
+          <option value="FINANCE">Finance</option>
+          <option value="ADMIN">Admin</option>
+        </select>
+
+        <select
+          name="selectedStatus"
+          [(ngModel)]="selectedStatus"
+          (ngModelChange)="goToFirstPage()">
+          <option value="ALL">All Status</option>
+          <option value="ACTIVE">Active</option>
+          <option value="INACTIVE">Inactive</option>
+        </select>
+
+        <button
+          class="btn btn-secondary"
+          type="button"
+          (click)="clearFilters()">
+          Clear
+        </button>
+      </div>
+
+      <div *ngIf="loading" class="empty-state">
+        Loading employees...
+      </div>
+
+      <div *ngIf="!loading && employees.length === 0" class="empty-state">
+        No employees found.
+      </div>
+
+      <div *ngIf="!loading && employees.length > 0" class="table-scroll">
+        <div class="table-tools">
+          <p>Showing {{ pageStart }} - {{ pageEnd }} of {{ filteredEmployees.length }}</p>
+
+          <label>
+            Rows
+            <select
+              name="pageSize"
+              [(ngModel)]="pageSize"
+              (ngModelChange)="goToFirstPage()">
+
+              @for (size of pageSizes; track size) {
+                <option [ngValue]="size">{{ size }}</option>
+              }
+            </select>
+          </label>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>
+                <button class="sort-btn" type="button" (click)="sortBy('name')">
+                  Name {{ getSortMark('name') }}
+                </button>
+              </th>
+
+              <th>
+                <button class="sort-btn" type="button" (click)="sortBy('email')">
+                  Email {{ getSortMark('email') }}
+                </button>
+              </th>
+
+              <th>
+                <button class="sort-btn" type="button" (click)="sortBy('role')">
+                  Role {{ getSortMark('role') }}
+                </button>
+              </th>
+
+              <th>
+                <button class="sort-btn" type="button" (click)="sortBy('department')">
+                  Department {{ getSortMark('department') }}
+                </button>
+              </th>
+
+              <th>Manager</th>
+
+              <th>
+                <button class="sort-btn" type="button" (click)="sortBy('status')">
+                  Status {{ getSortMark('status') }}
+                </button>
+              </th>
+
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (employee of pagedEmployees; track employee.id) {
+              <tr>
+                <td>{{ employee.firstName }} {{ employee.lastName }}</td>
+                <td>{{ employee.email }}</td>
+                <td>{{ employee.role }}</td>
+                <td>{{ employee.department }}</td>
+                <td>{{ employee.managerName || employee.managerId || '-' }}</td>
+                <td>
+                  <app-status-badge
+                    [label]="employee.enabled ? 'ACTIVE' : 'INACTIVE'" />
+                </td>
+                <td class="row-actions">
+                  <button
+                    class="btn btn-secondary btn-small"
+                    type="button"
+                    (click)="editEmployee(employee)">
+                    Edit
+                  </button>
+
+                  <button
+                    class="btn btn-danger btn-small"
+                    type="button"
+                    (click)="deleteEmployee(employee)">
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <div class="pagination">
+          <button
+            class="btn btn-secondary btn-small"
+            type="button"
+            (click)="previousPage()"
+            [disabled]="pageNumber === 1">
+            Previous
+          </button>
+
+          <span>Page {{ pageNumber }} of {{ totalPages }}</span>
+
+          <button
+            class="btn btn-secondary btn-small"
+            type="button"
+            (click)="nextPage()"
+            [disabled]="pageNumber === totalPages">
+            Next
+          </button>
+        </div>
+      </div>
+
+      <div
+        *ngIf="!loading && employees.length > 0 && filteredEmployees.length === 0"
+        class="empty-state">
+        No employees match your filters.
+      </div>
+    </div>
+  </section>
+</div>

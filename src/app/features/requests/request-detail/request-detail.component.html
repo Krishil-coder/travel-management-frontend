@@ -1,0 +1,96 @@
+<section>
+  <h1 class="page-title">Travel Request Detail</h1>
+  <p class="page-subtitle">Request information, approval history, and policy flags.</p>
+
+  <div *ngIf="loading" class="empty-state">Loading request...</div>
+  <div *ngIf="message" class="empty-state">{{ message }}</div>
+
+  <article *ngIf="request" class="card section">
+    <div class="form-grid">
+      <p><strong>Request Id:</strong> {{ request.id }}</p>
+      <p><strong>Employee:</strong> {{ request.employeeName }}</p>
+      <p><strong>Destination:</strong> {{ request.destination }}</p>
+      <p><strong>Dates:</strong> {{ request.startDate | date }} to {{ request.endDate | date }}</p>
+      <p><strong>Cost:</strong> {{ request.estimatedCost | currency: 'INR' }}</p>
+      <p><strong>Travel Class:</strong> {{ request.travelClass }}</p>
+      <p>
+        <strong>Status:</strong>
+        <span class="status-pill" [ngClass]="getStatusClass(request.status)">{{ request.status }}</span>
+      </p>
+    </div>
+
+    <h2>Purpose</h2>
+    <p>{{ request.purpose }}</p>
+
+    <h2>Policy Violations</h2>
+    <div *ngIf="policyViolations.length === 0" class="empty-state">No policy violations found.</div>
+    <ul *ngIf="policyViolations.length > 0">
+      <li *ngFor="let violation of policyViolations">{{ violation.severity }}: {{ violation.message }}</li>
+    </ul>
+
+    <section *ngIf="request.status === 'DRAFT'" class="section" style="margin-top: 16px;">
+      <div class="actions">
+        <button class="btn btn-secondary" type="button" (click)="editMode = !editMode">
+          {{ editMode ? 'Cancel Edit' : 'Edit Draft' }}
+        </button>
+        <button class="btn btn-primary" type="button" (click)="submitDraft()">Submit Draft</button>
+        <button class="btn btn-danger" type="button" (click)="deleteDraft()">Delete Draft</button>
+      </div>
+
+      <form *ngIf="editMode" [formGroup]="editForm" (ngSubmit)="saveDraftChanges()" style="margin-top: 16px;">
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="destination">Destination</label>
+            <input id="destination" formControlName="destination">
+            <span class="error" *ngIf="editForm.controls.destination.touched && editForm.controls.destination.invalid">Destination is required.</span>
+          </div>
+          <div class="form-field">
+            <label for="travelClass">Travel Class</label>
+            <select id="travelClass" formControlName="travelClass">
+              <option>Economy</option>
+              <option>Premium Economy</option>
+              <option>Business</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="startDate">Start Date</label>
+            <input id="startDate" type="date" formControlName="startDate">
+          </div>
+          <div class="form-field">
+            <label for="endDate">End Date</label>
+            <input id="endDate" type="date" formControlName="endDate">
+            <span class="error" *ngIf="editForm.errors?.['dateRange']">End date cannot be before start date.</span>
+          </div>
+          <div class="form-field">
+            <label for="estimatedCost">Estimated Cost</label>
+            <input id="estimatedCost" type="number" formControlName="estimatedCost">
+            <span class="error" *ngIf="editForm.controls.estimatedCost.touched && editForm.controls.estimatedCost.invalid">Enter a positive cost.</span>
+          </div>
+          <div class="form-field">
+            <label for="purpose">Purpose</label>
+            <textarea id="purpose" formControlName="purpose"></textarea>
+            <span class="error" *ngIf="editForm.controls.purpose.touched && editForm.controls.purpose.invalid">Purpose must be at least 8 characters.</span>
+          </div>
+        </div>
+        <button class="btn btn-primary" type="submit" [disabled]="editForm.invalid">Save Changes</button>
+      </form>
+    </section>
+
+    <h2>Approval Timeline</h2>
+    <div *ngIf="(request.approvalHistory?.length ?? 0) === 0" class="empty-state">No approval history yet.</div>
+    <div *ngFor="let item of request.approvalHistory" class="timeline-row">
+      <div>
+        <strong>{{ item.level }} - {{ item.action }}</strong>
+        <p class="muted">{{ item.actor }} on {{ item.timestamp | date: 'medium' }}</p>
+        <p>{{ item.comment }}</p>
+      </div>
+    </div>
+
+    <div class="actions">
+      <a class="btn btn-secondary" routerLink="/travel-requests">Back</a>
+      <a *ngIf="request.status === 'FINANCE_APPROVED' || request.status === 'COMPLETED' || request.status === 'REIMBURSED'" class="btn btn-primary" [routerLink]="['/travel-requests', request.id, 'itinerary']">
+        Itinerary
+      </a>
+    </div>
+  </article>
+</section>

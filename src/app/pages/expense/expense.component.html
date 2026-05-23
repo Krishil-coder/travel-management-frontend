@@ -1,0 +1,97 @@
+<section>
+  <h1 class="page-title">Expense</h1>
+  <p class="page-subtitle">Submit and view travel expenses.</p>
+  <div *ngIf="loading" class="empty-state">Loading expenses...</div>
+
+  <div class="grid grid-3">
+    <div class="card section stat-card">
+      <p>Total Expenses</p>
+      <strong>{{ totalExpenseAmount | currency: 'INR' }}</strong>
+      <span class="muted">Submitted by you</span>
+    </div>
+  </div>
+
+  <form class="card section" [formGroup]="expenseForm" (ngSubmit)="addExpense()">
+    <div class="form-grid">
+      <div class="form-field">
+        <label for="travelRequestId">Travel Request ID</label>
+        <select id="travelRequestId" formControlName="travelRequestId">
+          <option value="">Select approved request</option>
+          <option *ngFor="let request of approvedRequests" [value]="request.id">
+            {{ request.id }} - {{ request.destination }}
+          </option>
+        </select>
+        <span *ngIf="expenseForm.controls.travelRequestId.touched && expenseForm.controls.travelRequestId.invalid" class="error">
+          Travel request is required.
+        </span>
+      </div>
+
+      <div class="form-field">
+        <label for="category">Category</label>
+        <select id="category" formControlName="category">
+          <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label for="amount">Amount</label>
+        <input id="amount" type="number" min="1" formControlName="amount" />
+        <span *ngIf="expenseForm.controls.amount.touched && expenseForm.controls.amount.invalid" class="error">
+          Enter a positive amount.
+        </span>
+      </div>
+
+      <div class="form-field">
+        <label for="proof">Upload Proof</label>
+        <input id="proof" type="file" (change)="onProofSelected($event)" />
+        <span class="muted" *ngIf="selectedFileName">Selected: {{ selectedFileName }}</span>
+      </div>
+    </div>
+
+    <div class="form-field form-wide">
+      <label for="description">Description</label>
+      <textarea id="description" formControlName="description"></textarea>
+      <span *ngIf="expenseForm.controls.description.touched && expenseForm.controls.description.invalid" class="error">
+        Description is required.
+      </span>
+    </div>
+
+    <div *ngIf="approvedRequests.length === 0" class="empty-state" style="margin-top: 16px;">
+      No approved travel requests found. Expenses can be submitted only after finance approves a travel request.
+    </div>
+
+    <p *ngIf="message" class="success-message">{{ message }}</p>
+    <button class="btn btn-primary" type="submit" [disabled]="expenseForm.invalid || approvedRequests.length === 0">Submit Expense</button>
+  </form>
+
+  <div class="card section table-wrap">
+    <h2>Expense List</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Request</th>
+          <th>Category</th>
+          <th>Amount</th>
+          <th>Proof</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of expenses">
+          <td>{{ item.id }}</td>
+          <td>{{ item.travelRequestId }}</td>
+          <td>{{ item.category }}</td>
+          <td>{{ item.amount | currency: 'INR' }}</td>
+          <td>{{ item.proofFileName || 'Not attached' }}</td>
+          <td>
+            <span class="status-pill" [ngClass]="getStatusClass(item.reimbursementStatus)">
+              {{ item.reimbursementStatus }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="expenses.length === 0" class="empty-state">No expenses found.</div>
+  </div>
+</section>

@@ -1,0 +1,41 @@
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">T</div>
+      <div>
+        <strong>TravelFlow</strong>
+        <span>Corporate travel</span>
+      </div>
+    </div>
+
+    <nav class="nav-list" aria-label="Main navigation">
+      @for (item of menuItems; track item.route) {
+        <a [routerLink]="item.route" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }">
+          <span class="nav-icon">{{ item.icon }}</span>
+          <span>{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+  </aside>
+
+  <div class="content-shell">
+    <header class="topbar">
+      <div>
+        <strong>{{ user()?.name }}</strong>
+        <span>{{ user()?.department }}</span>
+      </div>
+      <div class="profile">
+        <span class="role">{{ user()?.email }}</span>
+        <div class="avatar">{{ user()?.name?.charAt(0) }}</div>
+        <button class="btn btn-secondary" type="button" (click)="logout()">Logout</button>
+      </div>
+    </header>
+
+    <main class="page">
+      <router-outlet />
+    </main>
+  </div>
+</div>
+
+
+

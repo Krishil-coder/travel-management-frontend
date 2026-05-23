@@ -1,0 +1,198 @@
+<section class="request-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Employee</p>
+      <h1>Travel Request</h1>
+      <p>Create a draft first or submit directly for manager approval.</p>
+    </div>
+
+    <button class="btn btn-secondary" type="button" (click)="resetForm()">
+      New Request
+    </button>
+  </header>
+
+  <section class="summary-grid">
+    <article class="card">
+      <p>Drafts</p>
+      <strong>{{ draftCount }}</strong>
+    </article>
+
+    <article class="card">
+      <p>Submitted</p>
+      <strong>{{ submittedCount }}</strong>
+    </article>
+
+    <article class="card">
+      <p>Approved</p>
+      <strong>{{ approvedCount }}</strong>
+    </article>
+
+    <article class="card">
+      <p>Total Cost</p>
+      <strong>{{ totalBudget | currency: 'INR' }}</strong>
+    </article>
+  </section>
+
+  <p *ngIf="message" class="system-message">
+    {{ message }}
+  </p>
+
+  <section class="request-grid">
+    <form #travelForm="ngForm" class="card section request-form" (ngSubmit)="submitRequest()">
+      <div class="section-title">
+        <div>
+          <h2>{{ editingDraftId ? 'Edit Draft' : 'Create Request' }}</h2>
+          <p>Basic travel details required for approval.</p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="employeeName">Employee Name</label>
+          <input id="employeeName" name="employeeName" required [(ngModel)]="request.employeeName" />
+        </div>
+
+        <div class="form-field">
+          <label for="department">Department</label>
+          <input id="department" name="department" required [(ngModel)]="request.department" />
+        </div>
+
+        <div class="form-field">
+          <label for="destination">Destination</label>
+          <input id="destination" name="destination" required [(ngModel)]="request.destination" />
+        </div>
+
+        <div class="form-field">
+          <label for="travelClass">Travel Class</label>
+          <select id="travelClass" name="travelClass" [(ngModel)]="request.travelClass">
+            <option *ngFor="let item of travelClasses" [value]="item">{{ item }}</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="startDate">Start Date</label>
+          <input id="startDate" name="startDate" type="date" required [(ngModel)]="request.startDate" />
+        </div>
+
+        <div class="form-field">
+          <label for="endDate">End Date</label>
+          <input id="endDate" name="endDate" type="date" required [(ngModel)]="request.endDate" />
+        </div>
+
+        <div class="form-field">
+          <label for="estimatedCost">Estimated Cost</label>
+          <input id="estimatedCost" name="estimatedCost" type="number" min="1" required [(ngModel)]="request.estimatedCost" />
+        </div>
+      </div>
+
+      <div class="form-field form-wide">
+        <label for="purpose">Purpose</label>
+        <textarea id="purpose" name="purpose" required [(ngModel)]="request.purpose"></textarea>
+      </div>
+
+      <div *ngIf="policyViolations.length > 0" class="policy-box">
+        <strong>Policy Flags</strong>
+        <ul>
+          <li *ngFor="let violation of policyViolations">
+            {{ violation.severity }}: {{ violation.message }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-secondary" type="button" (click)="saveDraft()" [disabled]="travelForm.invalid || saving">
+          Save Draft
+        </button>
+        <button class="btn btn-primary" type="submit" [disabled]="travelForm.invalid || saving">
+          Submit
+        </button>
+      </div>
+    </form>
+
+    <aside class="card section workflow-panel">
+      <h2>Approval Flow</h2>
+
+      <div class="flow-step active">
+        <span>1</span>
+        <div>
+          <strong>Employee Request</strong>
+          <p>Draft or submit request.</p>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <span>2</span>
+        <div>
+          <strong>Manager Approval</strong>
+          <p>Manager approves or rejects with comments.</p>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <span>3</span>
+        <div>
+          <strong>Finance Approval</strong>
+          <p>Finance checks budget and policy flags.</p>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <span>4</span>
+        <div>
+          <strong>Expense Closure</strong>
+          <p>Employee submits expenses after approval.</p>
+        </div>
+      </div>
+    </aside>
+  </section>
+
+  <section class="card section">
+    <div class="section-title">
+      <div>
+        <h2>My Travel Requests</h2>
+        <p>Track request status from draft to approval.</p>
+      </div>
+    </div>
+
+    <div *ngIf="loading" class="empty-state">Loading travel requests...</div>
+
+    <div *ngIf="!loading && requests.length === 0" class="empty-state">
+      No travel requests found.
+    </div>
+
+    <div *ngIf="!loading && requests.length > 0" class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Destination</th>
+            <th>Dates</th>
+            <th>Class</th>
+            <th>Cost</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let item of requests">
+            <td>{{ item.destination }}</td>
+            <td>{{ item.startDate }} to {{ item.endDate }}</td>
+            <td>{{ item.travelClass }}</td>
+            <td>{{ item.estimatedCost | currency: 'INR' }}</td>
+            <td>
+              <app-status-badge [label]="getStatusText(item.status)" />
+            </td>
+            <td class="row-actions">
+              <button class="btn btn-secondary btn-small" type="button" (click)="editDraft(item)" [disabled]="item.status !== 'DRAFT'">
+                Edit
+              </button>
+              <button class="btn btn-danger btn-small" type="button" (click)="deleteDraft(item)" [disabled]="item.status !== 'DRAFT'">
+                Delete
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>

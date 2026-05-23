@@ -1,0 +1,34 @@
+<h1 class="page-title">Dashboard</h1>
+<p class="page-subtitle">A complete overview of corporate travel work.</p>
+
+<section class="card section">
+  <h2>Welcome, {{ user()?.name }}</h2>
+  <p class="muted">{{ dashboardMessage }}</p>
+</section>
+
+<section class="grid grid-4" style="margin-top: 18px;">
+  @for (stat of stats; track stat.label) {
+    <article class="card section">
+      <p class="muted">{{ stat.label }}</p>
+      <h2>{{ stat.value }}</h2>
+      <span class="muted">{{ stat.hint }}</span>
+    </article>
+  }
+</section>
+
+<section class="grid grid-2" style="margin-top: 18px;">
+  <article class="card section">
+    <h2>Recent Activity</h2>
+    <ul>
+      @for (activity of recentActivity; track activity) {
+        <li>{{ activity }}</li>
+      }
+    </ul>
+  </article>
+
+  <article class="card section">
+    <h2>Next Steps</h2>
+    <p class="muted">Use this Phase 0 dashboard as the launch point for forms, approvals, expenses, reports, and admin workflows.</p>
+    <div class="empty-state">Chart and workflow insights will connect to backend data later.</div>
+  </article>
+</section>

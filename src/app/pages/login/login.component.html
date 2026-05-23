@@ -1,0 +1,46 @@
+<section class="auth-page">
+  <div class="auth-intro">
+    <span>TravelIMS</span>
+    <strong>Travel work, without the mess.</strong>
+    <p>Request trips, review approvals, track expenses, and keep policy work in one calm workspace.</p>
+  </div>
+
+  <div class="auth-card card">
+    <h1>Sign in</h1>
+    <p class="muted">Use your company credentials to continue.</p>
+
+    <p *ngIf="message" class="error">{{ message }}</p>
+
+    <form (ngSubmit)="login()" class="form-stack">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          [(ngModel)]="email"
+          placeholder="name@company.com"
+          autocomplete="email"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          [(ngModel)]="password"
+          placeholder="Enter password"
+          autocomplete="current-password"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary full-button" [disabled]="loading">
+        {{ loading ? 'Signing in...' : 'Sign in' }}
+      </button>
+    </form>
+  </div>
+</section>

@@ -1,0 +1,112 @@
+<h1 class="page-title">User Management</h1>
+<p class="page-subtitle">Admin can add employees, managers, finance users, and admins, then update or remove accounts.</p>
+
+<section class="grid grid-2">
+  <article class="card section">
+    <h2>Users</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Department</th>
+            <th>Manager</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of users; track user.id) {
+            <tr>
+              <td>{{ user.name }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.role }}</td>
+              <td>{{ user.department }}</td>
+              <td>{{ user.manager || '-' }}</td>
+              <td><app-status-badge [label]="user.status" /></td>
+              <td>
+                <div class="actions">
+                  <button class="btn btn-secondary" type="button" (click)="editUser(user)">Edit</button>
+                  <button class="btn btn-danger" type="button" (click)="removeUser(user)">
+                    Remove
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="muted">No users found.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  <form class="card section" #employeeForm="ngForm" (ngSubmit)="saveUser()">
+    <h2>{{ editingUserId ? 'Edit User' : 'Add User' }}</h2>
+
+    <div class="form-grid">
+      <div class="form-field">
+        <label for="name">Name</label>
+        <input id="name" name="name" required [(ngModel)]="userForm.name" />
+      </div>
+
+      <div class="form-field">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" required [(ngModel)]="userForm.email" />
+      </div>
+
+      <div class="form-field">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          [required]="!editingUserId"
+          [(ngModel)]="userForm.password"
+          [placeholder]="editingUserId ? 'Leave blank to keep old password' : 'Minimum 6 characters'"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="role">Role</label>
+        <select id="role" name="role" required [(ngModel)]="userForm.role">
+          @for (role of roles; track role) {
+            <option [ngValue]="role">{{ role }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label for="department">Department</label>
+        <input id="department" name="department" required [(ngModel)]="userForm.department" />
+      </div>
+
+      <div class="form-field">
+        <label for="manager">Manager</label>
+        <input id="manager" name="manager" [(ngModel)]="userForm.manager" />
+      </div>
+
+      <div class="form-field">
+        <label for="status">Status</label>
+        <select id="status" name="status" required [(ngModel)]="userForm.status">
+          @for (status of statuses; track status) {
+            <option [ngValue]="status">{{ status }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <p *ngIf="message" class="success-message">{{ message }}</p>
+
+    <div class="actions">
+      <button class="btn btn-primary" type="submit" [disabled]="employeeForm.invalid">
+        {{ editingUserId ? 'Update User' : 'Add User' }}
+      </button>
+      <button *ngIf="editingUserId" class="btn btn-secondary" type="button" (click)="cancelEdit()">Cancel</button>
+    </div>
+  </form>
+</section>

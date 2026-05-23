@@ -1,0 +1,63 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Employee User",
+      "email": "employee@tms.com",
+      "password": "password",
+      "department": "Engineering",
+      "role": "EMPLOYEE",
+      "manager": "Manager User",
+      "status": "Active"
+    },
+    {
+      "id": 2,
+      "name": "Manager User",
+      "email": "manager@tms.com",
+      "password": "password",
+      "department": "Engineering",
+      "role": "MANAGER",
+      "manager": "Admin User",
+      "status": "Active"
+    },
+    {
+      "id": 3,
+      "name": "Finance User",
+      "email": "finance@tms.com",
+      "password": "password",
+      "department": "Finance",
+      "role": "FINANCE",
+      "manager": "Admin User",
+      "status": "Active"
+    },
+    {
+      "id": 4,
+      "name": "Admin User",
+      "email": "admin@tms.com",
+      "password": "password",
+      "department": "Administration",
+      "role": "ADMIN",
+      "manager": "",
+      "status": "Active"
+    }
+  ],
+  "policies": [
+    {
+      "id": "POL-1001",
+      "title": "Default Travel Budget",
+      "category": "Budget",
+      "department": "All",
+      "maxBudget": 100000,
+      "allowedClasses": [
+        "Economy",
+        "Premium Economy"
+      ],
+      "limit": "All limit INR 100000; classes: Economy, Premium Economy",
+      "status": "Active"
+    }
+  ],
+  "travelRequests": [],
+  "expenses": [],
+  "itineraryItems": [],
+  "auditLogs": []
+}

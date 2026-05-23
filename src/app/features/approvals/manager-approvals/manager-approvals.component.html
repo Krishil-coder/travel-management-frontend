@@ -1,0 +1,43 @@
+<h1 class="page-title">Manager Approval Inbox</h1>
+<p class="page-subtitle">Review team travel requests before finance validation.</p>
+
+<section class="card section">
+  <div class="form-field" style="margin-bottom: 16px;">
+    <label for="managerComment">Approval Comment</label>
+    <textarea id="managerComment" [(ngModel)]="comment" placeholder="Add a comment before approving or rejecting"></textarea>
+  </div>
+
+  @if (message) {
+    <p class="success-message">{{ message }}</p>
+  }
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Request</th>
+          <th>Employee</th>
+          <th>Destination</th>
+          <th>Cost</th>
+          <th>Status</th>
+          <th>Decision</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (request of approvals; track request.id) {
+          <tr>
+            <td>{{ request.id }}</td>
+            <td>{{ request.employeeName }}</td>
+            <td>{{ request.destination }}</td>
+            <td>{{ request.estimatedCost | currency: 'INR' }}</td>
+            <td><app-status-badge [label]="request.status" /></td>
+            <td class="actions">
+              <button class="btn btn-success" type="button" (click)="approve(request)">Approve</button>
+              <button class="btn btn-danger" type="button" (click)="reject(request)">Reject</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

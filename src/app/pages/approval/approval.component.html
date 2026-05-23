@@ -1,0 +1,178 @@
+<div class="page-container">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1>Approvals</h1>
+      <p>Review and approve travel requests from employees</p>
+    </div>
+  </div>
+
+  <!-- Approval Tabs -->
+  <div style="display: flex; gap: 12px;" *ngIf="canViewManagerApprovals && canViewFinanceApprovals">
+    <button class="btn" type="button"
+      [ngClass]="selectedView === 'manager' ? 'btn-primary' : 'btn-secondary'"
+      (click)="selectedView = 'manager'">
+      Manager Approvals
+    </button>
+
+    <button class="btn" type="button"
+      [ngClass]="selectedView === 'finance' ? 'btn-primary' : 'btn-secondary'"
+      (click)="selectedView = 'finance'">
+      Finance Approvals
+    </button>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="loading" class="empty-state">Loading approvals...</div>
+
+  <div *ngIf="message"
+    style="padding: 16px; background: rgba(21, 128, 61, 0.1); color: #15803d; border-radius: 8px; font-weight: 500;">
+    {{ message }}
+  </div>
+
+  <!-- ngSwitch parent -->
+  <div [ngSwitch]="selectedView">
+
+    <!-- Manager Approvals -->
+    <ng-container *ngSwitchCase="'manager'">
+      <div class="card section" *ngIf="canViewManagerApprovals">
+        <h2 style="margin: 0 0 24px; font-size: 18px; font-weight: 700;">
+          Manager Approval Requests
+        </h2>
+
+        <div *ngIf="managerRequests.length === 0"
+          style="padding: 40px 20px; text-align: center; color: var(--muted);">
+          <p style="margin: 0;">No manager approvals pending at this moment.</p>
+        </div>
+
+        <table *ngIf="managerRequests.length > 0">
+          <thead>
+            <tr>
+              <th>Request ID</th>
+              <th>Employee</th>
+              <th>Destination</th>
+              <th>Cost</th>
+              <th>Policy</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let request of managerRequests">
+              <td><strong>{{ request.id }}</strong></td>
+              <td>{{ request.employeeName }}</td>
+              <td>{{ request.destination }}</td>
+              <td>{{ request.estimatedCost | currency: 'INR' }}</td>
+              <td>{{ (request.policyViolations?.length ?? 0) > 0 ? request.policyViolations?.length + ' flag(s)' : 'Clear' }}</td>
+              <td>
+                <span style="background: #fef08a; color: #92400e; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;">
+                  Pending
+                </span>
+              </td>
+              <td>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                  <form [formGroup]="commentForms[request.id]">
+                    <textarea
+                      formControlName="comment"
+                      placeholder="Add manager comment"
+                      style="min-width: 220px; min-height: 64px; padding: 8px; border: 1px solid var(--border); border-radius: 6px;"
+                    ></textarea>
+                    <span class="error" *ngIf="commentForms[request.id].controls.comment.touched && commentForms[request.id].controls.comment.invalid">
+                      Comment is required.
+                    </span>
+                  </form>
+                  <div style="display: flex; gap: 8px;">
+                  <button class="btn btn-success" type="button"
+                    (click)="approveManager(request)"
+                    style="font-size: 12px; padding: 6px 12px;">
+                    Approve
+                  </button>
+
+                  <button class="btn btn-danger" type="button"
+                    (click)="rejectByManager(request)"
+                    style="font-size: 12px; padding: 6px 12px;">
+                    Reject
+                  </button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </ng-container>
+
+    <!-- Finance Approvals -->
+    <ng-container *ngSwitchCase="'finance'">
+      <div class="card section" *ngIf="canViewFinanceApprovals">
+        <h2 style="margin: 0 0 24px; font-size: 18px; font-weight: 700;">
+          Finance Approval Requests
+        </h2>
+
+        <div *ngIf="financeRequests.length === 0"
+          style="padding: 40px 20px; text-align: center; color: var(--muted);">
+          <p style="margin: 0;">No finance approvals pending at this moment.</p>
+        </div>
+
+        <table *ngIf="financeRequests.length > 0">
+          <thead>
+            <tr>
+              <th>Request ID</th>
+              <th>Employee</th>
+              <th>Destination</th>
+              <th>Cost</th>
+              <th>Policy</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let request of financeRequests">
+              <td><strong>{{ request.id }}</strong></td>
+              <td>{{ request.employeeName }}</td>
+              <td>{{ request.destination }}</td>
+              <td>{{ request.estimatedCost | currency: 'INR' }}</td>
+              <td>{{ (request.policyViolations?.length ?? 0) > 0 ? request.policyViolations?.length + ' flag(s)' : 'Clear' }}</td>
+              <td>
+                <span style="background: #fef08a; color: #92400e; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;">
+                  Pending
+                </span>
+              </td>
+              <td>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                  <form [formGroup]="commentForms[request.id]">
+                    <textarea
+                      formControlName="comment"
+                      placeholder="Add finance comment"
+                      style="min-width: 220px; min-height: 64px; padding: 8px; border: 1px solid var(--border); border-radius: 6px;"
+                    ></textarea>
+                    <span class="error" *ngIf="commentForms[request.id].controls.comment.touched && commentForms[request.id].controls.comment.invalid">
+                      Comment is required.
+                    </span>
+                  </form>
+                  <div style="display: flex; gap: 8px;">
+                  <button class="btn btn-success" type="button"
+                    (click)="approveFinance(request)"
+                    style="font-size: 12px; padding: 6px 12px;">
+                    Approve
+                  </button>
+
+                  <button class="btn btn-danger" type="button"
+                    (click)="rejectByFinance(request)"
+                    style="font-size: 12px; padding: 6px 12px;">
+                    Reject
+                  </button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </ng-container>
+
+  </div>
+</div>

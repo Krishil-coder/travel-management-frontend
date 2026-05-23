@@ -1,0 +1,65 @@
+<h1 class="page-title">Reimbursement Tracking</h1>
+<p class="page-subtitle">Review pending expense claims and update reimbursement status.</p>
+
+<section class="grid grid-3">
+  <div class="card section stat-card">
+    <p>Pending Reimbursement</p>
+    <strong>{{ pendingTotal | currency: 'INR' }}</strong>
+    <span class="muted">{{ pendingExpenses.length }} pending expenses</span>
+  </div>
+</section>
+
+<p *ngIf="message" class="success-message">{{ message }}</p>
+<div *ngIf="loading" class="empty-state">Loading reimbursements...</div>
+
+<section class="card section">
+  <h2 style="margin: 0 0 16px; font-size: 18px; font-weight: 700;">Finance Reimbursement Queue</h2>
+
+  <div *ngIf="!loading && pendingExpenses.length === 0" class="empty-state">
+    No pending expenses found.
+  </div>
+
+  <div class="table-wrap">
+    <table *ngIf="pendingExpenses.length > 0">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Request</th>
+          <th>Employee</th>
+          <th>Category</th>
+          <th>Amount</th>
+          <th>Proof</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of pendingExpenses; track item.id) {
+          <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.travelRequestId }}</td>
+            <td>{{ item.employeeName }}</td>
+            <td>{{ item.category }}</td>
+            <td>{{ item.amount | currency: 'INR' }}</td>
+            <td>{{ item.proofFileName || 'Not attached' }}</td>
+            <td><app-status-badge [label]="item.reimbursementStatus" /></td>
+            <td>
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <textarea
+                  name="financeExpenseComment-{{ item.id }}"
+                  [(ngModel)]="comments[item.id]"
+                  placeholder="Add finance comment"
+                  style="min-width: 220px; min-height: 64px; padding: 8px; border: 1px solid var(--line); border-radius: 6px;"
+                ></textarea>
+                <div style="display: flex; gap: 8px;">
+                  <button class="btn btn-success" type="button" (click)="markReimbursed(item)">Reimburse</button>
+                  <button class="btn btn-danger" type="button" (click)="reject(item)">Reject</button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

@@ -1,0 +1,38 @@
+<h1 class="page-title">My Requests</h1>
+<p class="page-subtitle">Track submitted, draft, and approved travel requests.</p>
+
+<section class="card section">
+  <div class="actions" style="justify-content: space-between; margin-bottom: 14px;">
+    <strong>Request register</strong>
+    <button class="btn btn-secondary" type="button" (click)="exportCsv()">Export CSV</button>
+  </div>
+  @if (message) {
+    <p class="success-message">{{ message }}</p>
+  }
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Request ID</th>
+          <th>Destination</th>
+          <th>Date Range</th>
+          <th>Status</th>
+          <th>Estimated Cost</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (request of requests; track request.id) {
+          <tr>
+            <td>{{ request.id }}</td>
+            <td>{{ request.destination }}</td>
+            <td>{{ request.startDate }} to {{ request.endDate }}</td>
+            <td><app-status-badge [label]="request.status" /></td>
+            <td>{{ request.estimatedCost | currency: 'INR' }}</td>
+            <td><button class="btn btn-secondary" type="button" (click)="viewRequest(request.id)">View</button></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

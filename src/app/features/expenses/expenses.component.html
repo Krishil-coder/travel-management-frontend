@@ -1,0 +1,66 @@
+<h1 class="page-title">Expense Management</h1>
+<p class="page-subtitle">Add expenses against approved travel requests and track reimbursement status.</p>
+
+<section class="grid grid-2">
+  <form class="card section" [formGroup]="expenseForm" (ngSubmit)="addExpense()">
+    <h2>Add Expense</h2>
+    <div class="form-field">
+      <label for="travelRequestId">Approved Request</label>
+      <select id="travelRequestId" formControlName="travelRequestId">
+        <option value="">Select approved request</option>
+        @for (request of approvedRequests; track request.id) {
+          <option [value]="request.id">{{ request.id }} - {{ request.destination }}</option>
+        }
+      </select>
+    </div>
+    <div class="form-field">
+      <label for="category">Category</label>
+      <select id="category" formControlName="category">
+        <option>FOOD</option>
+        <option>STAY</option>
+        <option>TRANSPORT</option>
+        <option>OTHER</option>
+      </select>
+    </div>
+    <div class="form-field">
+      <label for="amount">Amount</label>
+      <input id="amount" type="number" formControlName="amount">
+    </div>
+    <div class="form-field">
+      <label for="note">Note</label>
+      <textarea id="note" formControlName="note"></textarea>
+    </div>
+    <div class="form-field">
+      <label for="proofFileName">Proof File Name</label>
+      <input id="proofFileName" formControlName="proofFileName" placeholder="invoice.pdf">
+    </div>
+    @if (approvedRequests.length === 0) {
+      <div class="empty-state">Expenses can be submitted after a travel request is approved.</div>
+    }
+    @if (message) {
+      <p class="success-message">{{ message }}</p>
+    }
+    <button class="btn btn-primary" type="submit" style="margin-top: 14px;" [disabled]="approvedRequests.length === 0">Add Expense</button>
+  </form>
+
+  <article class="card section">
+    <h2>Expense List</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Category</th><th>Amount</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          @for (expense of expenses; track expense.id) {
+            <tr>
+              <td>{{ expense.id }}</td>
+              <td>{{ expense.category }}</td>
+              <td>{{ expense.amount | currency: 'INR' }}</td>
+              <td><app-status-badge [label]="expense.reimbursementStatus" /></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </article>
+</section>

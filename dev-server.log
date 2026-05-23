@@ -1,0 +1,76 @@
+
+> travel-management-system-ui@0.0.1 start
+> ng serve --proxy-config proxy.conf.json --host 127.0.0.1 --port 4200
+
+[33m>[39m Building...
+[32m√[39m Building...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m                   [2m | [22m [1mRaw size[22m
+[32mchunk-EO3RBJ6G.js[39m  [2m | [22m[2m-[22m                       [2m | [22m  [36m1.03 MB[39m[2m | [22m
+[32mstyles.css[39m         [2m | [22m[2mstyles[22m                  [2m | [22m[36m285.22 kB[39m[2m | [22m
+[32mchunk-DPG6E7L3.js[39m  [2m | [22m[2m-[22m                       [2m | [22m[36m255.90 kB[39m[2m | [22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m                    [2m | [22m[36m185.44 kB[39m[2m | [22m
+[32mpolyfills.js[39m       [2m | [22m[2mpolyfills[22m               [2m | [22m [36m90.20 kB[39m[2m | [22m
+[32mchunk-K2PF2YGL.js[39m  [2m | [22m[2m-[22m                       [2m | [22m  [36m2.43 kB[39m[2m | [22m
+[32mchunk-O3ZFQSVY.js[39m  [2m | [22m[2m-[22m                       [2m | [22m[36m166 bytes[39m[2m | [22m
+
+[1m [22m                  [2m | [22m[1mInitial total[22m           [2m | [22m  [1m1.85 MB[22m
+
+[1mLazy chunk files[22m   [2m | [22m[1mNames[22m                   [2m | [22m [1mRaw size[22m
+[32mchunk-JR4NN3KU.js[39m  [2m | [22m[2m-[22m                       [2m | [22m[36m209.70 kB[39m[2m | [22m
+[32mchunk-RLCNKWTW.js[39m  [2m | [22m[2mhome-component[22m          [2m | [22m [36m28.71 kB[39m[2m | [22m
+[32mchunk-NEZTUNV6.js[39m  [2m | [22m[2mapproval-component[22m      [2m | [22m [36m24.45 kB[39m[2m | [22m
+[32mchunk-IIECHUPM.js[39m  [2m | [22m[2mrequest-detail-component[22m[2m | [22m [36m21.88 kB[39m[2m | [22m
+[32mchunk-V74VZUMD.js[39m  [2m | [22m[2mreport-component[22m        [2m | [22m [36m21.31 kB[39m[2m | [22m
+[32mchunk-CA353X7Y.js[39m  [2m | [22m[2musers-component[22m         [2m | [22m [36m17.31 kB[39m[2m | [22m
+[32mchunk-4JRPEJDG.js[39m  [2m | [22m[2mexpense-component[22m       [2m | [22m [36m16.45 kB[39m[2m | [22m
+[32mchunk-FLZ2NP7Z.js[39m  [2m | [22m[2mitinerary-component[22m     [2m | [22m [36m13.71 kB[39m[2m | [22m
+[32mchunk-YVHP2RLZ.js[39m  [2m | [22m[2mcreate-request-component[22m[2m | [22m [36m13.59 kB[39m[2m | [22m
+[32mchunk-EJU6MZ7D.js[39m  [2m | [22m[2mpolicies-component[22m      [2m | [22m [36m13.48 kB[39m[2m | [22m
+[32mchunk-KHO3GY4S.js[39m  [2m | [22m[2mmy-requests-component[22m   [2m | [22m [36m12.91 kB[39m[2m | [22m
+[32mchunk-HPAMIQVJ.js[39m  [2m | [22m[2mreimbursements-component[22m[2m | [22m [36m11.43 kB[39m[2m | [22m
+[32mchunk-AAFSDY35.js[39m  [2m | [22m[2madmin-component[22m         [2m | [22m  [36m9.82 kB[39m[2m | [22m
+[32mchunk-Q4P7TPOP.js[39m  [2m | [22m[2memployee-component[22m      [2m | [22m  [36m8.05 kB[39m[2m | [22m
+[32mchunk-DHH3AM44.js[39m  [2m | [22m[2mregister-component[22m      [2m | [22m  [36m5.89 kB[39m[2m | [22m
+[2m...and 11 more lazy chunks files. Use "--verbose" to show all the files.[22m
+
+Application bundle generation complete. [10.331 seconds]
+
+Watch mode enabled. Watching for file changes...
+NOTE: Raw file sizes do not reflect development server per-request transformations.
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m4200[22m/[39m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m             [2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m              [2m | [22m[36m185.44 kB[39m[2m | [22m
+
+[1mLazy chunk files[22m   [2m | [22m[1mNames[22m             [2m | [22m [1mRaw size[22m
+[32mchunk-TE56WG3L.js[39m  [2m | [22m[2mapproval-component[22m[2m | [22m [36m24.38 kB[39m[2m | [22m
+
+Application bundle generation complete. [1.733 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m                   [2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m                    [2m | [22m[36m185.44 kB[39m[2m | [22m
+[32mchunk-JNJCKFRN.js[39m  [2m | [22m[2m-[22m                       [2m | [22m  [36m2.44 kB[39m[2m | [22m
+
+[1mLazy chunk files[22m   [2m | [22m[1mNames[22m                   [2m | [22m [1mRaw size[22m
+[32mchunk-5WLWBP33.js[39m  [2m | [22m[2mhome-component[22m          [2m | [22m [36m28.71 kB[39m[2m | [22m
+[32mchunk-AZMF5LLC.js[39m  [2m | [22m[2mapproval-component[22m      [2m | [22m [36m24.38 kB[39m[2m | [22m
+[32mchunk-7P5RESLB.js[39m  [2m | [22m[2mexpense-component[22m       [2m | [22m [36m16.45 kB[39m[2m | [22m
+[32mchunk-KH62NAWS.js[39m  [2m | [22m[2mcreate-request-component[22m[2m | [22m [36m13.59 kB[39m[2m | [22m
+[32mchunk-TFXMRQUM.js[39m  [2m | [22m[2mmy-requests-component[22m   [2m | [22m [36m12.91 kB[39m[2m | [22m
+[32mchunk-BYG6GO6V.js[39m  [2m | [22m[2mregister-component[22m      [2m | [22m  [36m5.89 kB[39m[2m | [22m
+
+Application bundle generation complete. [2.386 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [0.352 seconds]
+
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [0.427 seconds]
+

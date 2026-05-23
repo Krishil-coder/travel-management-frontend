@@ -1,0 +1,58 @@
+<section>
+  <h1 class="page-title">My Requests</h1>
+  <p class="page-subtitle">Track draft, submitted, approved, and rejected travel requests.</p>
+
+  <div *ngIf="loading" class="empty-state">Loading requests...</div>
+  <div *ngIf="message" class="empty-state">{{ message }}</div>
+
+  <div class="card section table-wrap" *ngIf="!loading && requests.length > 0; else noRequests">
+    <table>
+      <thead>
+        <tr>
+          <th>Request Id</th>
+          <th>Employee</th>
+          <th>Destination</th>
+          <th>Dates</th>
+          <th>Cost</th>
+          <th>Policy</th>
+          <th>Status</th>
+          <th>Actions</th>
+          <th>Approval Timeline</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let request of requests">
+          <td><a [routerLink]="['/travel-requests', request.id]">{{ request.id }}</a></td>
+          <td>{{ request.employeeName }}</td>
+          <td>{{ request.destination | uppercase }}</td>
+          <td>{{ request.startDate | date }} to {{ request.endDate | date }}</td>
+          <td>{{ request.estimatedCost | currency: 'INR' }}</td>
+          <td>
+            <span class="status-pill" [ngClass]="(request.policyViolations?.length ?? 0) > 0 ? 'status-rejected' : 'status-approved'">
+              {{ (request.policyViolations?.length ?? 0) > 0 ? (request.policyViolations?.length + ' flag(s)') : 'Clear' }}
+            </span>
+          </td>
+          <td><span class="status-pill" [ngClass]="getStatusClass(request.status)">{{ request.status }}</span></td>
+          <td>
+            <div class="actions" *ngIf="request.status === 'DRAFT'">
+              <a class="btn btn-secondary" [routerLink]="['/travel-requests', request.id]">Edit</a>
+              <button class="btn btn-primary" type="button" (click)="submitDraft(request)">Submit</button>
+              <button class="btn btn-danger" type="button" (click)="deleteDraft(request)">Delete</button>
+            </div>
+            <span *ngIf="request.status !== 'DRAFT'" class="muted">View only</span>
+          </td>
+          <td>
+            <div *ngFor="let item of request.approvalHistory" style="margin-bottom: 6px;">
+              <strong>{{ item.level }}</strong> {{ item.action }}
+              <span class="muted">by {{ item.actor }}</span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <ng-template #noRequests>
+    <div *ngIf="!loading && !message" class="empty-state">No requests found.</div>
+  </ng-template>
+</section>

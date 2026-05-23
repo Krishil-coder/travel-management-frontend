@@ -1,0 +1,57 @@
+<h1 class="page-title">Policy Management</h1>
+<p class="page-subtitle">Configure budget limits and allowed travel classes used during request submission.</p>
+
+<section class="grid grid-2">
+  <article class="card section">
+    <h2>Policies</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Title</th><th>Department</th><th>Limit</th><th>Status</th></tr></thead>
+        <tbody>
+          @for (policy of policies; track policy.id) {
+            <tr>
+              <td>{{ policy.id }}</td>
+              <td>{{ policy.title }}</td>
+              <td>{{ policy.department }}</td>
+              <td>{{ policy.limit }}</td>
+              <td><app-status-badge [label]="policy.status" /></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  <form class="card section" #policyForm="ngForm" (ngSubmit)="savePolicy()">
+    <h2>Add Policy</h2>
+    <div class="form-field"><label for="title">Policy Title</label><input id="title" name="title" required [(ngModel)]="policy.title"></div>
+    <div class="form-field">
+      <label for="category">Category</label>
+      <select id="category" name="category" [(ngModel)]="policy.category">
+        <option>Budget</option>
+        <option>Travel Class</option>
+        <option>Expense</option>
+      </select>
+    </div>
+    <div class="form-field"><label for="department">Department</label><input id="department" name="department" [(ngModel)]="policy.department" placeholder="All, Engineering, Sales"></div>
+    <div class="form-field"><label for="maxBudget">Maximum Budget</label><input id="maxBudget" name="maxBudget" type="number" min="1" [(ngModel)]="policy.maxBudget"></div>
+
+    <div class="form-field">
+      <label>Allowed Travel Classes</label>
+      <label><input type="checkbox" [checked]="policy.allowedClasses.includes('Economy')" (change)="toggleClass('Economy', $any($event.target).checked)"> Economy</label>
+      <label><input type="checkbox" [checked]="policy.allowedClasses.includes('Premium Economy')" (change)="toggleClass('Premium Economy', $any($event.target).checked)"> Premium Economy</label>
+      <label><input type="checkbox" [checked]="policy.allowedClasses.includes('Business')" (change)="toggleClass('Business', $any($event.target).checked)"> Business</label>
+    </div>
+
+    <div class="form-field">
+      <label for="status">Status</label>
+      <select id="status" name="status" [(ngModel)]="policy.status">
+        <option>Active</option>
+        <option>Draft</option>
+      </select>
+    </div>
+
+    <p *ngIf="message" class="success-message">{{ message }}</p>
+    <button class="btn btn-primary" type="submit" [disabled]="policyForm.invalid">Save Policy</button>
+  </form>
+</section>

@@ -1,0 +1,52 @@
+<h1 class="page-title">Reports</h1>
+<p class="page-subtitle">Mock spend insights for travel planning and budget control.</p>
+
+<section class="grid grid-3">
+  @for (item of summary; track item.label) {
+    <article class="card section">
+      <p class="muted">{{ item.label }}</p>
+      <h2>{{ item.value }}</h2>
+      <span class="muted">{{ item.trend }}</span>
+    </article>
+  }
+</section>
+
+<section class="grid grid-2" style="margin-top: 18px;">
+  <article class="card section">
+    <h2>Spend Chart Placeholder</h2>
+    <div class="empty-state">Bar/line chart will be connected after backend and chart library decisions.</div>
+  </article>
+  <article class="card section">
+    <h2>Policy Exceptions Placeholder</h2>
+    <div class="empty-state">Exception analytics will appear here.</div>
+  </article>
+</section>
+
+<section class="grid grid-2" style="margin-top: 18px;">
+  <article class="card section">
+    <h2>Department-wise Spend</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Department</th><th>Trips</th><th>Spend</th></tr></thead>
+        <tbody>
+          @for (row of departmentSpend; track row.department) {
+            <tr><td>{{ row.department }}</td><td>{{ row.trips }}</td><td>{{ row.spend | currency: 'INR' }}</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </article>
+  <article class="card section">
+    <h2>Monthly Cost</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Month</th><th>Requests</th><th>Cost</th></tr></thead>
+        <tbody>
+          @for (row of monthlyCosts; track row.month) {
+            <tr><td>{{ row.month }}</td><td>{{ row.requests }}</td><td>{{ row.cost | currency: 'INR' }}</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </article>
+</section>

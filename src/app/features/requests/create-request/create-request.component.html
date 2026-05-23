@@ -1,0 +1,73 @@
+<h1 class="page-title">Create Travel Request</h1>
+<p class="page-subtitle">Capture the basic trip details and send them into the approval workflow.</p>
+
+<form class="card section" [formGroup]="requestForm" (ngSubmit)="submit()">
+  <div class="form-grid">
+    <div class="form-field">
+      <label for="destination">Destination</label>
+      <input id="destination" formControlName="destination" placeholder="Mumbai, Singapore, Dubai">
+      @if (requestForm.controls.destination.touched && requestForm.controls.destination.invalid) {
+        <span class="error">Destination is required.</span>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="travelClass">Travel Class</label>
+      <select id="travelClass" formControlName="travelClass">
+        <option>Economy</option>
+        <option>Premium Economy</option>
+        <option>Business</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label for="startDate">Start Date</label>
+      <input id="startDate" type="date" formControlName="startDate">
+      <span *ngIf="requestForm.controls.startDate.touched && requestForm.controls.startDate.invalid" class="error">Start date is required.</span>
+    </div>
+
+    <div class="form-field">
+      <label for="endDate">End Date</label>
+      <input id="endDate" type="date" formControlName="endDate">
+      <span *ngIf="requestForm.controls.endDate.touched && requestForm.controls.endDate.invalid" class="error">End date is required.</span>
+      <span *ngIf="requestForm.errors?.['dateRange']" class="error">End date cannot be before start date.</span>
+    </div>
+
+    <div class="form-field">
+      <label for="estimatedCost">Estimated Cost</label>
+      <input id="estimatedCost" type="number" formControlName="estimatedCost">
+      <span *ngIf="requestForm.controls.estimatedCost.touched && requestForm.controls.estimatedCost.invalid" class="error">
+        Enter a positive cost.
+      </span>
+    </div>
+
+    <div class="form-field">
+      <label for="purpose">Purpose</label>
+      <textarea id="purpose" formControlName="purpose" placeholder="Explain the business reason for this trip"></textarea>
+      <span *ngIf="requestForm.controls.purpose.touched && requestForm.controls.purpose.invalid" class="error">
+        Purpose must be at least 8 characters.
+      </span>
+    </div>
+  </div>
+
+  @if (policyViolations.length > 0) {
+    <div class="empty-state" style="margin-top: 16px; text-align: left;">
+      <strong>Policy flags</strong>
+      <ul style="margin: 10px 0 0; padding-left: 18px;">
+        @for (violation of policyViolations; track violation.message) {
+          <li>{{ violation.severity }}: {{ violation.message }}</li>
+        }
+      </ul>
+    </div>
+  }
+
+  <div class="actions" style="margin-top: 18px;">
+    <button class="btn btn-secondary" type="button" (click)="saveDraft()" [disabled]="requestForm.invalid || loading">Save Draft</button>
+    <button class="btn btn-primary" type="submit" [disabled]="requestForm.invalid || loading">
+      {{ loading ? 'Saving...' : 'Submit' }}
+    </button>
+    @if (message) {
+      <span class="muted">{{ message }}</span>
+    }
+  </div>
+</form>

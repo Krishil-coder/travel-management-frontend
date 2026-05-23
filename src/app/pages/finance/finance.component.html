@@ -1,0 +1,28 @@
+<div class="page-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1>Finance Dashboard</h1>
+      <p>Review and approve travel budgets and financial requests</p>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+    <div class="card" style="padding: 24px; text-align: center;">
+      <p style="margin: 0 0 8px; color: var(--muted); font-size: 13px; font-weight: 600; text-transform: uppercase;">Pending Reviews</p>
+      <p style="margin: 0; font-size: 48px; font-weight: 700; color: var(--primary);">{{ pendingRequests.length }}</p>
+    </div>
+    <div class="card" style="padding: 24px; text-align: center;">
+      <p style="margin: 0 0 8px; color: var(--muted); font-size: 13px; font-weight: 600; text-transform: uppercase;">Total Approved</p>
+      <p style="margin: 0; font-size: 48px; font-weight: 700; color: var(--success);">32</p>
+    </div>
+  </div>
+
+  <!-- Action Card -->
+  <div class="card section">
+    <h2 style="margin: 0 0 16px; font-size: 18px; font-weight: 700;">Finance Approvals</h2>
+    <p style="margin: 0 0 24px; color: var(--muted);">You have <strong>{{ pendingRequests.length }}</strong> budget requests waiting for your approval.</p>
+    <a class="btn btn-primary" routerLink="/approval">Review Budgets</a>
+  </div>
+</div>

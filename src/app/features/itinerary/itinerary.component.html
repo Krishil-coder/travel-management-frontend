@@ -1,0 +1,59 @@
+<h1 class="page-title">Itinerary Management</h1>
+<p class="page-subtitle">Manually maintain travel segments, stay details, and schedule timeline.</p>
+
+<div *ngIf="loading" class="empty-state">Loading itinerary...</div>
+<div *ngIf="message" class="success-message">{{ message }}</div>
+
+<section class="grid grid-2" *ngIf="!loading">
+  <article class="card section">
+    <h2>Timeline</h2>
+
+    <div *ngIf="items.length === 0" class="empty-state">No itinerary added.</div>
+
+    <div *ngFor="let item of items" class="timeline-row">
+      <div>
+        <strong>{{ item.startDateTime | date: 'medium' }} - {{ item.type }}</strong>
+        <p class="muted" style="margin: 4px 0 0;">
+          {{ item.fromLocation }} to {{ item.toLocation }}
+        </p>
+        <p class="muted" style="margin: 4px 0 0;">{{ item.notes || 'No notes added' }}</p>
+      </div>
+      <app-status-badge [label]="item.status" />
+    </div>
+  </article>
+
+  <form class="card section" [formGroup]="itineraryForm" (ngSubmit)="addItem()">
+    <h2>Add Itinerary Item</h2>
+
+    <div *ngIf="request?.status !== 'FINANCE_APPROVED' && request?.status !== 'COMPLETED' && request?.status !== 'REIMBURSED'" class="empty-state" style="margin-bottom: 16px;">
+      Itinerary can be created after finance approves this travel request.
+    </div>
+
+    <div class="form-grid">
+      <div class="form-field">
+        <label for="type">Segment Type</label>
+        <select id="type" formControlName="type">
+          <option *ngFor="let type of types" [value]="type">{{ type }}</option>
+        </select>
+      </div>
+
+      <div class="form-field"><label for="fromLocation">From Location</label><input id="fromLocation" formControlName="fromLocation"></div>
+      <div class="form-field"><label for="toLocation">To Location</label><input id="toLocation" formControlName="toLocation"></div>
+      <div class="form-field"><label for="startDateTime">Start Date-Time</label><input id="startDateTime" type="datetime-local" formControlName="startDateTime"></div>
+      <div class="form-field">
+        <label for="endDateTime">End Date-Time</label>
+        <input id="endDateTime" type="datetime-local" formControlName="endDateTime">
+        <span *ngIf="itineraryForm.errors?.['dateTimeRange']" class="error">End time cannot be before start time.</span>
+      </div>
+    </div>
+
+    <div class="form-field form-wide">
+      <label for="notes">Notes / Stay Details</label>
+      <textarea id="notes" formControlName="notes"></textarea>
+    </div>
+
+    <button class="btn btn-primary" type="submit" [disabled]="itineraryForm.invalid || (request?.status !== 'FINANCE_APPROVED' && request?.status !== 'COMPLETED' && request?.status !== 'REIMBURSED')">
+      Add Item
+    </button>
+  </form>
+</section>

@@ -1,0 +1,43 @@
+<h1 class="page-title">Finance Approval Inbox</h1>
+<p class="page-subtitle">Validate budgets, policies, and finance readiness.</p>
+
+<section class="card section">
+  <div class="form-field" style="margin-bottom: 16px;">
+    <label for="financeComment">Finance Comment</label>
+    <textarea id="financeComment" [(ngModel)]="comment" placeholder="Add budget or policy notes"></textarea>
+  </div>
+
+  @if (message) {
+    <p class="success-message">{{ message }}</p>
+  }
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Request</th>
+          <th>Department</th>
+          <th>Destination</th>
+          <th>Cost</th>
+          <th>Status</th>
+          <th>Decision</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (request of approvals; track request.id) {
+          <tr>
+            <td>{{ request.id }}</td>
+            <td>{{ request.department }}</td>
+            <td>{{ request.destination }}</td>
+            <td>{{ request.estimatedCost | currency: 'INR' }}</td>
+            <td><app-status-badge [label]="request.status" /></td>
+            <td class="actions">
+              <button class="btn btn-success" type="button" (click)="approve(request)">Approve</button>
+              <button class="btn btn-danger" type="button" (click)="reject(request)">Reject</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

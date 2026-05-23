@@ -1,0 +1,28 @@
+<h1 class="page-title">Audit Logs</h1>
+<p class="page-subtitle">Track important actions across requests, approvals, expenses, and admin pages.</p>
+
+<section class="card section">
+  <div class="form-grid" style="margin-bottom: 18px;">
+    <div class="form-field"><label>Actor</label><input placeholder="Search actor"></div>
+    <div class="form-field"><label>Action Type</label><select><option>All</option><option>CREATE</option><option>UPDATE</option><option>APPROVE</option><option>REJECT</option><option>LOGIN</option></select></div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Actor</th><th>Action</th><th>Description</th><th>Timestamp</th></tr>
+      </thead>
+      <tbody>
+        @for (log of logs; track log.id) {
+          <tr>
+            <td>{{ log.id }}</td>
+            <td>{{ log.actor }}</td>
+            <td><app-status-badge [label]="log.actionType" /></td>
+            <td>{{ log.description }}</td>
+            <td>{{ log.timestamp }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>
