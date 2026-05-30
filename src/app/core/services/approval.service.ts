@@ -1,33 +1,52 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { TravelRequest } from '../models/travel-request.model';
-import { TravelRequestService } from './travel-request.service';
+import {
+  FinanceRequestDetailsResponse,
+  ManagerRequestDetailsResponse,
+  TravelRequestService
+} from './travel-request.service';
 
 @Injectable({ providedIn: 'root' })
 export class ApprovalService {
   private readonly requestService = inject(TravelRequestService);
 
-  getManagerApprovals(): Observable<TravelRequest[]> {
+  getManagerApprovals(): Observable<ManagerRequestDetailsResponse[]> {
     return this.requestService.getManagerApprovals();
   }
 
-  getFinanceApprovals(): Observable<TravelRequest[]> {
+  getManagerRequestById(id: string): Observable<ManagerRequestDetailsResponse> {
+    return this.requestService.getManagerRequestById(id);
+  }
+
+  getFinanceApprovals(): Observable<FinanceRequestDetailsResponse[]> {
     return this.requestService.getFinanceApprovals();
   }
 
-  approveByManager(request: TravelRequest, comment: string): Observable<TravelRequest> {
+  approveByManager(
+    request: ManagerRequestDetailsResponse,
+    comment: string
+  ): Observable<ManagerRequestDetailsResponse> {
     return this.requestService.approveByManager(request, comment);
   }
 
-  rejectByManager(request: TravelRequest, comment: string): Observable<TravelRequest> {
+  rejectByManager(
+    request: ManagerRequestDetailsResponse,
+    comment: string
+  ): Observable<ManagerRequestDetailsResponse> {
     return this.requestService.rejectByManager(request, comment);
   }
 
-  approveByFinance(request: TravelRequest, comment: string): Observable<TravelRequest> {
+  approveByFinance(
+    request: FinanceRequestDetailsResponse,
+    comment: string
+  ): Observable<FinanceRequestDetailsResponse> {
     return this.requestService.approveByFinance(request, comment);
   }
 
-  rejectByFinance(request: TravelRequest, comment: string): Observable<TravelRequest> {
+  rejectByFinance(
+    request: FinanceRequestDetailsResponse,
+    comment: string
+  ): Observable<FinanceRequestDetailsResponse> {
     return this.requestService.rejectByFinance(request, comment);
   }
 }

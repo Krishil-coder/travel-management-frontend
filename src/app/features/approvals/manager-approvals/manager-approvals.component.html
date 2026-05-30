@@ -1,43 +1,75 @@
-<h1 class="page-title">Manager Approval Inbox</h1>
-<p class="page-subtitle">Review team travel requests before finance validation.</p>
+<section class="page-shell">
+  <header class="page-hero">
+    <div>
+      <p class="eyebrow">Manager Workspace</p>
+      <h1>Manager Approval Inbox</h1>
+      <p>Review employee travel requests, add comments, and send approved trips to financer validation.</p>
+    </div>
+  </header>
 
-<section class="card section">
-  <div class="form-field" style="margin-bottom: 16px;">
-    <label for="managerComment">Approval Comment</label>
-    <textarea id="managerComment" [(ngModel)]="comment" placeholder="Add a comment before approving or rejecting"></textarea>
+  <div class="metric-grid">
+    <article class="card metric-card">
+      <p>Pending Requests</p>
+      <strong>{{ approvals.length }}</strong>
+      <span>Waiting for manager decision</span>
+    </article>
   </div>
 
-  @if (message) {
-    <p class="success-message">{{ message }}</p>
-  }
+  <section class="card section table-card">
+    <div class="section-heading">
+      <div>
+        <h2>Decision Comment</h2>
+        <p>This comment is sent with the approval or rejection.</p>
+      </div>
+    </div>
 
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Request</th>
-          <th>Employee</th>
-          <th>Destination</th>
-          <th>Cost</th>
-          <th>Status</th>
-          <th>Decision</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (request of approvals; track request.id) {
+    <div class="form-field" style="margin-bottom: 16px;">
+      <label for="managerComment">Approval Comment</label>
+      <textarea
+        id="managerComment"
+        [(ngModel)]="comment"
+        placeholder="Add comment before approval/rejection">
+      </textarea>
+    </div>
+
+    @if (message) {
+      <p class="success-message">{{ message }}</p>
+    }
+
+    @if (approvals.length === 0) {
+      <div class="empty-state">No submitted requests waiting for manager approval.</div>
+    }
+
+    <div class="table-wrap">
+      <table *ngIf="approvals.length > 0">
+        <thead>
           <tr>
-            <td>{{ request.id }}</td>
-            <td>{{ request.employeeName }}</td>
-            <td>{{ request.destination }}</td>
-            <td>{{ request.estimatedCost | currency: 'INR' }}</td>
-            <td><app-status-badge [label]="request.status" /></td>
-            <td class="actions">
-              <button class="btn btn-success" type="button" (click)="approve(request)">Approve</button>
-              <button class="btn btn-danger" type="button" (click)="reject(request)">Reject</button>
-            </td>
+            <th>Request</th>
+            <th>Employee</th>
+            <th>Destination</th>
+            <th>Cost</th>
+            <th>Status</th>
+            <th>Decision</th>
           </tr>
-        }
-      </tbody>
-    </table>
-  </div>
+        </thead>
+        <tbody>
+          @for (request of approvals; track request.requestId) {
+            <tr>
+              <td>{{ request.requestId }}</td>
+              <td>{{ request.employeeName }}</td>
+              <td>{{ request.destination }}</td>
+              <td>{{ request.estimatedCost | currency: 'INR' }}</td>
+              <td><app-status-badge [label]="request.status" /></td>
+              <td>
+                <div class="actions">
+                  <button class="btn btn-success btn-small" type="button" (click)="approve(request)">Approve</button>
+                  <button class="btn btn-danger btn-small" type="button" (click)="reject(request)">Reject</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
 </section>

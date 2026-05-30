@@ -55,10 +55,12 @@
           <div class="form-field">
             <label for="startDate">Start Date</label>
             <input id="startDate" type="date" formControlName="startDate">
+            <span class="error" *ngIf="editForm.controls.startDate.touched && editForm.controls.startDate.invalid">Start date is required.</span>
           </div>
           <div class="form-field">
             <label for="endDate">End Date</label>
             <input id="endDate" type="date" formControlName="endDate">
+            <span class="error" *ngIf="editForm.controls.endDate.touched && editForm.controls.endDate.invalid">End date is required.</span>
             <span class="error" *ngIf="editForm.errors?.['dateRange']">End date cannot be before start date.</span>
           </div>
           <div class="form-field">
@@ -87,9 +89,9 @@
     </div>
 
     <div class="actions">
-      <a class="btn btn-secondary" routerLink="/travel-requests">Back</a>
-      <a *ngIf="request.status === 'FINANCE_APPROVED' || request.status === 'COMPLETED' || request.status === 'REIMBURSED'" class="btn btn-primary" [routerLink]="['/travel-requests', request.id, 'itinerary']">
-        Itinerary
+      <a class="btn btn-secondary" routerLink="/requests">Back</a>
+      <a *ngIf="request.status === 'FINANCE_APPROVED'" class="btn btn-primary" [routerLink]="['/expenses', request.id]">
+        Add Expense
       </a>
     </div>
   </article>

@@ -1,9 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TravelRequest } from '@core/models/travel-request.model';
-import { TravelRequestService } from '@core/services/travel-request.service';
 import { StatusBadgeComponent } from '@shared/components/status-badge/status-badge.component';
+
+import {
+  TravelRequestService,
+  ManagerRequestDetailsResponse
+} from '@core/services/travel-request.service';
 
 @Component({
   selector: 'app-manager-approvals',
@@ -13,24 +16,25 @@ import { StatusBadgeComponent } from '@shared/components/status-badge/status-bad
 })
 export class ManagerApprovalsComponent {
   private readonly travelRequestService = inject(TravelRequestService);
+
   message = '';
   comment = '';
-  approvals: TravelRequest[] = [];
+  approvals: ManagerRequestDetailsResponse[] = [];
 
   constructor() {
     this.refresh();
   }
 
-  approve(request: TravelRequest): void {
+  approve(request: ManagerRequestDetailsResponse): void {
     this.travelRequestService.approveByManager(request, this.comment.trim()).subscribe({
-      next: () => this.afterAction(`${request.id} sent to finance.`),
+      next: () => this.afterAction(`${request.requestId} sent to finance.`),
       error: () => this.message = 'Could not approve request.'
     });
   }
 
-  reject(request: TravelRequest): void {
+  reject(request: ManagerRequestDetailsResponse): void {
     this.travelRequestService.rejectByManager(request, this.comment.trim()).subscribe({
-      next: () => this.afterAction(`${request.id} rejected.`),
+      next: () => this.afterAction(`${request.requestId} rejected.`),
       error: () => this.message = 'Could not reject request.'
     });
   }

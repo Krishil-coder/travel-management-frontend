@@ -42,7 +42,7 @@ export class MyRequestsComponent {
   deleteDraft(request: TravelRequest): void {
     if (!confirm('Delete this draft request?')) return;
 
-    this.requestService.deleteDraft(request.id).subscribe({
+    this.requestService.deleteDraft(request).subscribe({
       next: () => {
         this.message = 'Draft deleted.';
         this.loadRequests();

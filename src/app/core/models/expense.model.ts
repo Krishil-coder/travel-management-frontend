@@ -1,5 +1,5 @@
-export type ExpenseCategory = 'FOOD' | 'STAY' | 'TRANSPORT' | 'OTHER';
-export type ReimbursementStatus = 'PENDING' | 'REIMBURSED' | 'REJECTED';
+export type ExpenseCategory = 'FOOD' | 'HOTEL' | 'STAY' | 'TRANSPORT' | 'FLIGHT' | 'TRAIN' | 'CAR_RENTAL' | 'OTHER';
+export type ReimbursementStatus = 'PENDING' | 'APPROVED' | 'REIMBURSED' | 'REJECTED';
 
 export interface Expense {
   id: string;
@@ -9,6 +9,12 @@ export interface Expense {
   employeeName: string;
   category: ExpenseCategory;
   amount: number;
+  expenseDate?: string;
+  segmentType?: string;
+  fromLocation?: string;
+  toLocation?: string;
+  startTime?: string;
+  endTime?: string;
   description: string;
   proofFileName: string;
   reimbursementStatus: ReimbursementStatus;

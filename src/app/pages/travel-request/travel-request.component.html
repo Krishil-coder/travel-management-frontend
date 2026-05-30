@@ -6,9 +6,15 @@
       <p>Create a draft first or submit directly for manager approval.</p>
     </div>
 
-    <button class="btn btn-secondary" type="button" (click)="resetForm()">
-      New Request
-    </button>
+    <div class="header-actions">
+      <a class="btn btn-secondary" routerLink="/submit-request">
+        Review Drafts
+      </a>
+
+      <button class="btn btn-secondary" type="button" (click)="resetForm()">
+        New Request
+      </button>
+    </div>
   </header>
 
   <section class="summary-grid">
@@ -149,18 +155,67 @@
   <section class="card section">
     <div class="section-title">
       <div>
-        <h2>My Travel Requests</h2>
-        <p>Track request status from draft to approval.</p>
+        <h2>Draft Requests</h2>
+        <p>Saved drafts stay here until you edit or submit them.</p>
       </div>
     </div>
 
-    <div *ngIf="loading" class="empty-state">Loading travel requests...</div>
+    <div *ngIf="loading" class="empty-state">Loading draft requests...</div>
 
-    <div *ngIf="!loading && requests.length === 0" class="empty-state">
-      No travel requests found.
+    <div *ngIf="!loading && draftRequests.length === 0" class="empty-state">
+      No draft requests found.
     </div>
 
-    <div *ngIf="!loading && requests.length > 0" class="table-scroll">
+    <div *ngIf="!loading && draftRequests.length > 0" class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Destination</th>
+            <th>Dates</th>
+            <th>Class</th>
+            <th>Cost</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let item of draftRequests">
+            <td>{{ item.destination }}</td>
+            <td>{{ item.startDate }} to {{ item.endDate }}</td>
+            <td>{{ item.travelClass }}</td>
+            <td>{{ item.estimatedCost | currency: 'INR' }}</td>
+            <td class="row-actions">
+              <button class="btn btn-secondary btn-small" type="button" (click)="editDraft(item)" [disabled]="saving">
+                Edit
+              </button>
+              <button class="btn btn-primary btn-small" type="button" (click)="submitDraftFromList(item)" [disabled]="saving">
+                Submit
+              </button>
+              <button class="btn btn-danger btn-small" type="button" (click)="deleteDraft(item)" [disabled]="saving">
+                Delete
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card section">
+    <div class="section-title">
+      <div>
+        <h2>Submitted Requests</h2>
+        <p>Track request status after submission.</p>
+      </div>
+    </div>
+
+    <div *ngIf="loading" class="empty-state">Loading submitted requests...</div>
+
+    <div *ngIf="!loading && submittedRequests.length === 0" class="empty-state">
+      No submitted requests found.
+    </div>
+
+    <div *ngIf="!loading && submittedRequests.length > 0" class="table-scroll">
       <table>
         <thead>
           <tr>
@@ -169,26 +224,17 @@
             <th>Class</th>
             <th>Cost</th>
             <th>Status</th>
-            <th>Action</th>
           </tr>
         </thead>
 
         <tbody>
-          <tr *ngFor="let item of requests">
+          <tr *ngFor="let item of submittedRequests">
             <td>{{ item.destination }}</td>
             <td>{{ item.startDate }} to {{ item.endDate }}</td>
             <td>{{ item.travelClass }}</td>
             <td>{{ item.estimatedCost | currency: 'INR' }}</td>
             <td>
               <app-status-badge [label]="getStatusText(item.status)" />
-            </td>
-            <td class="row-actions">
-              <button class="btn btn-secondary btn-small" type="button" (click)="editDraft(item)" [disabled]="item.status !== 'DRAFT'">
-                Edit
-              </button>
-              <button class="btn btn-danger btn-small" type="button" (click)="deleteDraft(item)" [disabled]="item.status !== 'DRAFT'">
-                Delete
-              </button>
             </td>
           </tr>
         </tbody>

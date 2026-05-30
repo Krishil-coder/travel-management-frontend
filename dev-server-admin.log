@@ -1,7 +1,0 @@
-
-> travel-management-system-ui@0.0.1 start
-> ng serve --proxy-config proxy.conf.json --port 4200
-
- [1mPort 4200 is already in use.
-Would you like to use a different port?[22m [2m(Y/n)[22m[47G
-[?25h

@@ -1,43 +1,147 @@
-<h1 class="page-title">Finance Approval Inbox</h1>
-<p class="page-subtitle">Validate budgets, policies, and finance readiness.</p>
+<section class="page-shell">
+  <header class="page-hero">
+    <div>
+      <p class="eyebrow">Financer Workspace</p>
+      <h1>Financer Approval Inbox</h1>
+      <p>Validate manager-approved trips, budget readiness, policy fit, and reimbursement actions.</p>
+    </div>
+  </header>
 
-<section class="card section">
-  <div class="form-field" style="margin-bottom: 16px;">
-    <label for="financeComment">Finance Comment</label>
-    <textarea id="financeComment" [(ngModel)]="comment" placeholder="Add budget or policy notes"></textarea>
+  <div class="metric-grid">
+    <article class="card metric-card">
+      <p>Travel Approvals</p>
+      <strong>{{ approvals.length }}</strong>
+      <span>Ready for financer decision</span>
+    </article>
+    <article class="card metric-card">
+      <p>Expense Queue</p>
+      <strong>{{ expenses.length }}</strong>
+      <span>Claims awaiting action</span>
+    </article>
   </div>
 
-  @if (message) {
-    <p class="success-message">{{ message }}</p>
-  }
+  <section class="card section table-card">
+    <div class="section-heading">
+      <div>
+        <h2>Travel Approval Queue</h2>
+        <p>Use financer comments for budget, policy, or rejection notes.</p>
+      </div>
+    </div>
 
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Request</th>
-          <th>Department</th>
-          <th>Destination</th>
-          <th>Cost</th>
-          <th>Status</th>
-          <th>Decision</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (request of approvals; track request.id) {
+    <div class="form-field" style="margin-bottom: 16px;">
+      <label for="financeComment">Financer Comment</label>
+      <textarea
+        id="financeComment"
+        [(ngModel)]="comment"
+        [maxlength]="maxCommentLength"
+        placeholder="Add budget or policy notes"
+      ></textarea>
+      @if (comment.length > maxCommentLength) {
+        <span class="error">Comments must be {{ maxCommentLength }} characters or fewer.</span>
+      }
+    </div>
+
+    @if (message) {
+      <p class="success-message">{{ message }}</p>
+    }
+
+    @if (approvals.length === 0) {
+      <div class="empty-state">No manager-approved requests waiting for financer approval.</div>
+    }
+
+    <div class="table-wrap">
+      <table *ngIf="approvals.length > 0">
+        <thead>
           <tr>
-            <td>{{ request.id }}</td>
-            <td>{{ request.department }}</td>
-            <td>{{ request.destination }}</td>
-            <td>{{ request.estimatedCost | currency: 'INR' }}</td>
-            <td><app-status-badge [label]="request.status" /></td>
-            <td class="actions">
-              <button class="btn btn-success" type="button" (click)="approve(request)">Approve</button>
-              <button class="btn btn-danger" type="button" (click)="reject(request)">Reject</button>
-            </td>
+            <th>Request</th>
+            <th>Employee</th>
+            <th>Department</th>
+            <th>Destination</th>
+            <th>Cost</th>
+            <th>Manager</th>
+            <th>Status</th>
+            <th>Decision</th>
           </tr>
-        }
-      </tbody>
-    </table>
-  </div>
+        </thead>
+        <tbody>
+          @for (request of approvals; track request.requestId) {
+            <tr>
+              <td>{{ request.requestId }}</td>
+              <td>{{ request.employeeName }}</td>
+              <td>{{ request.department }}</td>
+              <td>{{ request.destination }}</td>
+              <td>{{ request.estimatedCost | currency: 'INR' }}</td>
+              <td>
+                <strong>{{ request.managerApproverName || 'Manager' }}</strong>
+                <p style="margin: 4px 0 0; color: var(--muted);">{{ request.managerComments || 'No comments' }}</p>
+              </td>
+              <td><app-status-badge [label]="request.status" /></td>
+              <td>
+                <div class="actions">
+                  <button class="btn btn-success btn-small" type="button" (click)="approve(request)" [disabled]="comment.length > maxCommentLength">Approve</button>
+                  <button class="btn btn-danger btn-small" type="button" (click)="reject(request)" [disabled]="comment.length > maxCommentLength">Reject</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card section table-card">
+    <div class="section-heading">
+      <div>
+        <h2>Expense Queue</h2>
+        <p>Approve, reject, or reimburse claims after travel approval.</p>
+      </div>
+    </div>
+
+    @if (expenses.length === 0) {
+      <div class="empty-state">No expenses waiting for financer action.</div>
+    }
+
+    <div class="table-wrap">
+      <table *ngIf="expenses.length > 0">
+        <thead>
+          <tr>
+            <th>Expense</th>
+            <th>Request</th>
+            <th>Category</th>
+            <th>Amount</th>
+            <th>Receipt</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (expense of expenses; track expense.id) {
+            <tr>
+              <td>{{ expense.id }}</td>
+              <td>{{ expense.travelRequestId }}</td>
+              <td>{{ expense.category }}</td>
+              <td>{{ expense.amount | currency: 'INR' }}</td>
+              <td>{{ expense.proofFileName || 'Not attached' }}</td>
+              <td><app-status-badge [label]="expense.reimbursementStatus" /></td>
+              <td>
+                <div style="display: grid; gap: 8px; min-width: 240px;">
+                  <textarea
+                    name="expenseComment-{{ expense.id }}"
+                    [(ngModel)]="expenseComments[expense.id]"
+                    placeholder="Financer comment"
+                    style="min-height: 58px; padding: 8px; border: 1px solid var(--line); border-radius: 6px;"
+                  ></textarea>
+                  <div class="actions">
+                    <button class="btn btn-success btn-small" type="button" (click)="approveExpense(expense)" [disabled]="expense.reimbursementStatus !== 'PENDING'">Approve</button>
+                    <button class="btn btn-primary btn-small" type="button" (click)="reimburseExpense(expense)" [disabled]="expense.reimbursementStatus !== 'APPROVED'">Reimburse</button>
+                    <button class="btn btn-danger btn-small" type="button" (click)="rejectExpense(expense)">Reject</button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
 </section>

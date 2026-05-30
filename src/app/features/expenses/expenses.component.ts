@@ -22,11 +22,17 @@ export class ExpensesComponent {
   message = '';
   approvedRequests: TravelRequest[] = [];
   expenses: Expense[] = [];
+  readonly segmentTypes = ['Flight', 'Train', 'Cab', 'Hotel', 'Meal', 'Other'];
   expenseForm = this.fb.nonNullable.group({
     travelRequestId: ['', Validators.required],
     category: ['FOOD' as Expense['category'], Validators.required],
     amount: [0, [Validators.required, Validators.min(1)]],
-    note: ['', Validators.required],
+    segmentType: ['', Validators.required],
+    fromLocation: ['', Validators.required],
+    toLocation: ['', Validators.required],
+    startTime: ['', Validators.required],
+    endTime: ['', Validators.required],
+    note: [''],
     proofFileName: ['']
   });
 
@@ -51,6 +57,11 @@ export class ExpensesComponent {
       employeeName: user?.name ?? '',
       category: value.category as Expense['category'],
       amount: Number(value.amount),
+      segmentType: value.segmentType,
+      fromLocation: value.fromLocation,
+      toLocation: value.toLocation,
+      startTime: value.startTime,
+      endTime: value.endTime,
       description: value.note,
       proofFileName: value.proofFileName,
       reimbursementStatus: 'PENDING',
@@ -62,7 +73,18 @@ export class ExpensesComponent {
     this.expenseService.addExpense(expense).subscribe({
       next: () => {
         this.message = 'Expense submitted for reimbursement.';
-        this.expenseForm.reset({ travelRequestId: '', category: 'FOOD', amount: 0, note: '', proofFileName: '' });
+        this.expenseForm.reset({
+          travelRequestId: '',
+          category: 'FOOD',
+          amount: 0,
+          segmentType: '',
+          fromLocation: '',
+          toLocation: '',
+          startTime: '',
+          endTime: '',
+          note: '',
+          proofFileName: ''
+        });
         this.loadData();
       },
       error: () => this.message = 'Could not submit expense.'

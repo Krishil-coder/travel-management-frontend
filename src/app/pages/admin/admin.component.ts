@@ -9,6 +9,7 @@ import {
 import { StatusBadgeComponent } from '@shared/components/status-badge/status-badge.component';
 
 type AdminSortField = 'name' | 'email' | 'role' | 'department' | 'status';
+type AdminRole = AdminUser['role'];
 
 @Component({
   selector: 'app-admin',
@@ -23,6 +24,14 @@ type AdminSortField = 'name' | 'email' | 'role' | 'department' | 'status';
 })
 export class AdminComponent implements OnInit {
   private readonly adminService = inject(AdminService);
+
+  readonly departments = [
+    'Engineering',
+    'Finance',
+    'Human Resources',
+    'Sales',
+    'Operations'
+  ];
 
   employees: AdminUser[] = [];
   employeeForm: SaveAdminUser = this.emptyEmployee();
@@ -64,7 +73,25 @@ export class AdminComponent implements OnInit {
   }
 
   get managers(): AdminUser[] {
-    return this.employees.filter(employee => employee.role === 'MANAGER');
+    return this.employees.filter(employee => employee.role === 'MANAGER' && employee.enabled);
+  }
+
+  get selectedDepartmentManager(): AdminUser | undefined {
+    return this.getManagerForDepartment(this.employeeForm.department);
+  }
+
+  get managerDisplay(): string {
+    if (!this.shouldAutoAssignManager()) {
+      return 'No manager required for this role';
+    }
+
+    const manager = this.selectedDepartmentManager;
+
+    if (!manager) {
+      return 'No manager found for this department';
+    }
+
+    return `${manager.firstName} ${manager.lastName}`;
   }
 
   get filteredEmployees(): AdminUser[] {
@@ -147,6 +174,16 @@ export class AdminComponent implements OnInit {
     this.goToFirstPage();
   }
 
+  onDepartmentChange(department: string): void {
+    this.employeeForm.department = department;
+    this.applyDepartmentManager();
+  }
+
+  onRoleChange(role: AdminRole): void {
+    this.employeeForm.role = role;
+    this.applyDepartmentManager();
+  }
+
   getSortMark(field: AdminSortField): string {
     if (this.sortField !== field) {
       return '';
@@ -201,6 +238,7 @@ export class AdminComponent implements OnInit {
       managerId: employee.managerId,
       enabled: employee.enabled
     };
+    this.applyDepartmentManager();
   }
 
   deleteEmployee(employee: AdminUser): void {
@@ -239,6 +277,7 @@ export class AdminComponent implements OnInit {
     this.adminService.listUsers().subscribe({
       next: (users) => {
         this.employees = users;
+        this.applyDepartmentManager();
         this.goToFirstPage();
         this.loading = false;
       },
@@ -266,6 +305,11 @@ export class AdminComponent implements OnInit {
       return false;
     }
 
+    if (this.shouldAutoAssignManager() && !this.employeeForm.managerId) {
+      this.message = 'Create an active manager for this department first.';
+      return false;
+    }
+
     return true;
   }
 
@@ -281,7 +325,19 @@ export class AdminComponent implements OnInit {
 
   private afterSaveError(error: any): void {
     this.saving = false;
-    this.message = error.error?.message || 'Save failed';
+    this.message = this.getErrorMessage(error);
+  }
+
+  private getErrorMessage(error: any): string {
+    if (error?.status === 0) {
+      return 'Backend is not running. Start Spring Boot on port 8080, then try again.';
+    }
+
+    if (typeof error?.error === 'string' && error.error.trim()) {
+      return error.error;
+    }
+
+    return error?.error?.message || error?.message || 'Save failed';
   }
 
   private emptyEmployee(): SaveAdminUser {
@@ -291,10 +347,27 @@ export class AdminComponent implements OnInit {
       email: '',
       password: '',
       role: 'EMPLOYEE',
-      department: '',
-      managerId: 1,
+      department: this.departments[0],
+      managerId: null,
       enabled: true
     };
+  }
+
+  private applyDepartmentManager(): void {
+    if (!this.shouldAutoAssignManager()) {
+      this.employeeForm.managerId = null;
+      return;
+    }
+
+    this.employeeForm.managerId = this.selectedDepartmentManager?.id ?? null;
+  }
+
+  private shouldAutoAssignManager(): boolean {
+    return this.employeeForm.role === 'EMPLOYEE' || this.employeeForm.role === 'FINANCE';
+  }
+
+  private getManagerForDepartment(department: string): AdminUser | undefined {
+    return this.managers.find(manager => manager.department === department);
   }
 
   private getSortValue(employee: AdminUser): string {

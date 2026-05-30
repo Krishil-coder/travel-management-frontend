@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -49,7 +50,7 @@ export class RequestDetailComponent {
 
   getStatusClass(status: string): string {
     if (status === 'FINANCE_APPROVED' || status === 'COMPLETED' || status === 'REIMBURSED') return 'status-approved';
-    if (status === 'MANAGER_REJECTED' || status === 'FINANCE_REJECTED') return 'status-rejected';
+    if (status === 'REJECTED' || status === 'MANAGER_REJECTED' || status === 'FINANCE_REJECTED') return 'status-rejected';
     if (status === 'DRAFT') return 'status-draft';
     return 'status-pending';
   }
@@ -71,7 +72,10 @@ export class RequestDetailComponent {
     const updatedRequest: TravelRequest = {
       ...this.request,
       ...this.editForm.getRawValue(),
-      estimatedCost: Number(this.editForm.controls.estimatedCost.value)
+      estimatedCost: Number(this.editForm.controls.estimatedCost.value),
+      status: 'DRAFT',
+      policyViolations: this.policyViolations,
+      updatedAt: new Date().toISOString()
     };
 
     this.requestService.updateDraft(updatedRequest).subscribe({
@@ -80,7 +84,9 @@ export class RequestDetailComponent {
         this.editMode = false;
         this.message = 'Draft updated.';
       },
-      error: () => this.message = 'Could not update draft.'
+      error: (error: HttpErrorResponse) => {
+        this.message = this.getErrorMessage(error, 'Could not update draft.');
+      }
     });
   }
 
@@ -100,8 +106,8 @@ export class RequestDetailComponent {
   deleteDraft(): void {
     if (!this.request || !confirm('Delete this draft request?')) return;
 
-    this.requestService.deleteDraft(this.request.id).subscribe({
-      next: () => void this.router.navigateByUrl('/travel-requests'),
+    this.requestService.deleteDraft(this.request).subscribe({
+      next: () => void this.router.navigateByUrl('/requests'),
       error: () => this.message = 'Could not delete draft.'
     });
   }
@@ -126,5 +132,14 @@ export class RequestDetailComponent {
     }
 
     return new Date(endDate) < new Date(startDate) ? { dateRange: true } : null;
+  }
+
+  private getErrorMessage(error: HttpErrorResponse, fallback: string): string {
+    const apiMessage =
+      typeof error.error === 'string'
+        ? error.error
+        : error.error?.message || error.error?.error;
+
+    return apiMessage ? `${fallback} ${apiMessage}` : fallback;
   }
 }

@@ -2,8 +2,8 @@
   <header class="page-header">
     <div>
       <p class="eyebrow">Admin</p>
-      <h1>Employee Management</h1>
-      <p>Create employee accounts, assign roles and keep manager mapping updated.</p>
+      <h1>User Management</h1>
+      <p>Create users, assign access roles, and keep department-manager mapping updated.</p>
     </div>
 
     <button
@@ -79,34 +79,36 @@
 
         <label>
           Department
-          <input
+          <select
             name="department"
-            placeholder="Department"
             required
-            [(ngModel)]="employeeForm.department" />
+            [(ngModel)]="employeeForm.department"
+            (ngModelChange)="onDepartmentChange($event)">
+            @for (department of departments; track department) {
+              <option [value]="department">{{ department }}</option>
+            }
+          </select>
         </label>
 
         <label>
           Role
-          <select name="role" [(ngModel)]="employeeForm.role">
+          <select
+            name="role"
+            [(ngModel)]="employeeForm.role"
+            (ngModelChange)="onRoleChange($event)">
             <option>EMPLOYEE</option>
             <option>MANAGER</option>
-            <option>FINANCE</option>
+            <option value="FINANCE">FINANCER</option>
             <option>ADMIN</option>
           </select>
         </label>
 
         <label>
           Manager
-          <select name="managerId" [(ngModel)]="employeeForm.managerId">
-            <option [ngValue]="null">No Manager</option>
-
-            @for (manager of managers; track manager.id) {
-              <option [ngValue]="manager.id">
-                {{ manager.firstName }} {{ manager.lastName }}
-              </option>
-            }
-          </select>
+          <input
+            name="managerDisplay"
+            readonly
+            [value]="managerDisplay" />
         </label>
 
         <label>
@@ -167,7 +169,7 @@
           <option value="ALL">All Roles</option>
           <option value="EMPLOYEE">Employee</option>
           <option value="MANAGER">Manager</option>
-          <option value="FINANCE">Finance</option>
+          <option value="FINANCE">Financer</option>
           <option value="ADMIN">Admin</option>
         </select>
 
@@ -258,7 +260,7 @@
               <tr>
                 <td>{{ employee.firstName }} {{ employee.lastName }}</td>
                 <td>{{ employee.email }}</td>
-                <td>{{ employee.role }}</td>
+                <td>{{ employee.role === 'FINANCE' ? 'FINANCER' : employee.role }}</td>
                 <td>{{ employee.department }}</td>
                 <td>{{ employee.managerName || employee.managerId || '-' }}</td>
                 <td>

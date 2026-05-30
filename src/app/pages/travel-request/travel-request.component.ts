@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
 import {
   RequestStatus,
@@ -19,6 +20,7 @@ import { StatusBadgeComponent } from '@shared/components/status-badge/status-bad
   imports: [
     CommonModule,
     FormsModule,
+    RouterLink,
     StatusBadgeComponent
   ],
   templateUrl: './travel-request.component.html',
@@ -54,7 +56,15 @@ export class TravelRequestComponent implements OnInit {
   }
 
   get draftCount(): number {
-    return this.requests.filter(item => item.status === 'DRAFT').length;
+    return this.draftRequests.length;
+  }
+
+  get draftRequests(): TravelRequest[] {
+    return this.requests.filter(item => item.status === 'DRAFT');
+  }
+
+  get submittedRequests(): TravelRequest[] {
+    return this.requests.filter(item => item.status !== 'DRAFT');
   }
 
   get submittedCount(): number {
@@ -117,11 +127,22 @@ export class TravelRequestComponent implements OnInit {
 
     if (this.editingDraftId) {
 
+      const payload = this.prepareRequest('DRAFT');
+
       this.requestService
-        .submitDraft(this.editingDraftId)
+        .updateDraft(payload)
         .subscribe({
           next: () => {
-            this.afterSubmitSuccess();
+            this.requestService
+              .submitDraft(this.editingDraftId)
+              .subscribe({
+                next: () => {
+                  this.afterSubmitSuccess();
+                },
+                error: () => {
+                  this.afterSubmitError();
+                }
+              });
           },
           error: () => {
             this.afterSubmitError();
@@ -186,10 +207,41 @@ export class TravelRequestComponent implements OnInit {
     }
 
     this.requestService
-      .deleteDraft(item.id)
+      .deleteDraft(item)
       .subscribe({
         next: () => {
           this.loadRequests();
+        },
+        error: () => {
+          this.message = 'Draft delete failed';
+        }
+      });
+  }
+
+  submitDraftFromList(item: TravelRequest): void {
+
+    if (item.status !== 'DRAFT' || !item.id) {
+      return;
+    }
+
+    this.saving = true;
+
+    this.requestService
+      .submitDraft(item.id)
+      .subscribe({
+        next: () => {
+          this.saving = false;
+          this.message = 'Draft submitted successfully';
+
+          if (this.editingDraftId === item.id) {
+            this.resetForm();
+          }
+
+          this.loadRequests();
+        },
+        error: () => {
+          this.saving = false;
+          this.message = 'Draft submit failed';
         }
       });
   }
@@ -267,7 +319,7 @@ export class TravelRequestComponent implements OnInit {
 
     return {
       id: '',
-      employeeId: user?.id || 1,
+      employeeId: this.authService.currentUserId(),
       employeeEmail: user?.email || '',
       employeeName: user?.name || '',
       department: user?.department || '',

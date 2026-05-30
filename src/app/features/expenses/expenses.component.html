@@ -27,7 +27,32 @@
       <input id="amount" type="number" formControlName="amount">
     </div>
     <div class="form-field">
-      <label for="note">Note</label>
+      <label for="segmentType">Segment Type *</label>
+      <select id="segmentType" formControlName="segmentType">
+        <option value="">Select segment type</option>
+        @for (segmentType of segmentTypes; track segmentType) {
+          <option [value]="segmentType">{{ segmentType }}</option>
+        }
+      </select>
+    </div>
+    <div class="form-field">
+      <label for="fromLocation">From Location *</label>
+      <input id="fromLocation" formControlName="fromLocation" placeholder="Hotel Orchid">
+    </div>
+    <div class="form-field">
+      <label for="toLocation">To Location *</label>
+      <input id="toLocation" formControlName="toLocation" placeholder="Client office">
+    </div>
+    <div class="form-field">
+      <label for="startTime">Start Time *</label>
+      <input id="startTime" type="time" formControlName="startTime">
+    </div>
+    <div class="form-field">
+      <label for="endTime">End Time *</label>
+      <input id="endTime" type="time" formControlName="endTime">
+    </div>
+    <div class="form-field">
+      <label for="note">Details</label>
       <textarea id="note" formControlName="note"></textarea>
     </div>
     <div class="form-field">
@@ -48,12 +73,15 @@
     <div class="table-wrap">
       <table>
         <thead>
-          <tr><th>ID</th><th>Category</th><th>Amount</th><th>Status</th></tr>
+          <tr><th>ID</th><th>Segment</th><th>Route</th><th>Time</th><th>Category</th><th>Amount</th><th>Status</th></tr>
         </thead>
         <tbody>
           @for (expense of expenses; track expense.id) {
             <tr>
               <td>{{ expense.id }}</td>
+              <td>{{ expense.segmentType || '-' }}</td>
+              <td>{{ expense.fromLocation || '-' }} to {{ expense.toLocation || '-' }}</td>
+              <td>{{ expense.startTime || '-' }} - {{ expense.endTime || '-' }}</td>
               <td>{{ expense.category }}</td>
               <td>{{ expense.amount | currency: 'INR' }}</td>
               <td><app-status-badge [label]="expense.reimbursementStatus" /></td>

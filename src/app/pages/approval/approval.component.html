@@ -53,7 +53,7 @@
               <th>Employee</th>
               <th>Destination</th>
               <th>Cost</th>
-              <th>Policy</th>
+              <th>Purpose</th>
               <th>Status</th>
               <th>Action</th>
             </tr>
@@ -61,11 +61,11 @@
 
           <tbody>
             <tr *ngFor="let request of managerRequests">
-              <td><strong>{{ request.id }}</strong></td>
+              <td><strong>{{ request.requestId }}</strong></td>
               <td>{{ request.employeeName }}</td>
               <td>{{ request.destination }}</td>
               <td>{{ request.estimatedCost | currency: 'INR' }}</td>
-              <td>{{ (request.policyViolations?.length ?? 0) > 0 ? request.policyViolations?.length + ' flag(s)' : 'Clear' }}</td>
+              <td>{{ request.purpose }}</td>
               <td>
                 <span style="background: #fef08a; color: #92400e; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;">
                   Pending
@@ -73,14 +73,18 @@
               </td>
               <td>
                 <div style="display: flex; flex-direction: column; gap: 8px;">
-                  <form [formGroup]="commentForms[request.id]">
+                  <form [formGroup]="commentForms[request.requestId]">
                     <textarea
                       formControlName="comment"
                       placeholder="Add manager comment"
+                      [maxlength]="maxCommentLength"
                       style="min-width: 220px; min-height: 64px; padding: 8px; border: 1px solid var(--border); border-radius: 6px;"
                     ></textarea>
-                    <span class="error" *ngIf="commentForms[request.id].controls.comment.touched && commentForms[request.id].controls.comment.invalid">
+                    <span class="error" *ngIf="commentForms[request.requestId].controls.comment.touched && commentForms[request.requestId].controls.comment.hasError('required')">
                       Comment is required.
+                    </span>
+                    <span class="error" *ngIf="commentForms[request.requestId].controls.comment.touched && commentForms[request.requestId].controls.comment.hasError('maxlength')">
+                      Comments must be {{ maxCommentLength }} characters or fewer.
                     </span>
                   </form>
                   <div style="display: flex; gap: 8px;">
@@ -123,7 +127,7 @@
               <th>Employee</th>
               <th>Destination</th>
               <th>Cost</th>
-              <th>Policy</th>
+              <th>Manager</th>
               <th>Status</th>
               <th>Action</th>
             </tr>
@@ -131,11 +135,14 @@
 
           <tbody>
             <tr *ngFor="let request of financeRequests">
-              <td><strong>{{ request.id }}</strong></td>
+              <td><strong>{{ request.requestId }}</strong></td>
               <td>{{ request.employeeName }}</td>
               <td>{{ request.destination }}</td>
               <td>{{ request.estimatedCost | currency: 'INR' }}</td>
-              <td>{{ (request.policyViolations?.length ?? 0) > 0 ? request.policyViolations?.length + ' flag(s)' : 'Clear' }}</td>
+              <td>
+                <strong>{{ request.managerApproverName || 'Manager' }}</strong>
+                <p style="margin: 4px 0 0; color: var(--muted);">{{ request.managerComments || 'No comments' }}</p>
+              </td>
               <td>
                 <span style="background: #fef08a; color: #92400e; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;">
                   Pending
@@ -143,14 +150,15 @@
               </td>
               <td>
                 <div style="display: flex; flex-direction: column; gap: 8px;">
-                  <form [formGroup]="commentForms[request.id]">
+                  <form [formGroup]="commentForms[request.requestId]">
                     <textarea
                       formControlName="comment"
                       placeholder="Add finance comment"
+                      [maxlength]="maxCommentLength"
                       style="min-width: 220px; min-height: 64px; padding: 8px; border: 1px solid var(--border); border-radius: 6px;"
                     ></textarea>
-                    <span class="error" *ngIf="commentForms[request.id].controls.comment.touched && commentForms[request.id].controls.comment.invalid">
-                      Comment is required.
+                    <span class="error" *ngIf="commentForms[request.requestId].controls.comment.touched && commentForms[request.requestId].controls.comment.hasError('maxlength')">
+                      Comments must be {{ maxCommentLength }} characters or fewer.
                     </span>
                   </form>
                   <div style="display: flex; gap: 8px;">

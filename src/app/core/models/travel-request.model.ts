@@ -5,6 +5,7 @@ export type RequestStatus =
   | 'MANAGER_REJECTED'
   | 'FINANCE_APPROVED'
   | 'FINANCE_REJECTED'
+  | 'REJECTED'
   | 'COMPLETED'
   | 'REIMBURSED';
 export type TravelClass = 'Economy' | 'Premium Economy' | 'Business';

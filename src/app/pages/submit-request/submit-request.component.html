@@ -1,0 +1,136 @@
+<section class="submit-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Employee</p>
+      <h1>Submit Request</h1>
+      <p>Review saved draft requests, edit details, then send for approval.</p>
+    </div>
+
+    <a class="btn btn-secondary" routerLink="/travel-request">
+      Create Draft
+    </a>
+  </header>
+
+  <p *ngIf="message" class="system-message">
+    {{ message }}
+  </p>
+
+  <section class="submit-grid">
+    <aside class="card section draft-list">
+      <div class="section-title">
+        <div>
+          <h2>Draft Requests</h2>
+          <p>{{ drafts.length }} ready to review</p>
+        </div>
+      </div>
+
+      <div *ngIf="loading" class="empty-state">
+        Loading drafts...
+      </div>
+
+      <div *ngIf="!loading && drafts.length === 0" class="empty-state">
+        No draft requests found.
+      </div>
+
+      <button
+        *ngFor="let item of drafts"
+        class="draft-item"
+        type="button"
+        [class.active]="item.id === selectedDraftId"
+        (click)="selectDraft(item)">
+        <span>
+          <strong>{{ item.destination || 'Untitled request' }}</strong>
+          <small>{{ item.startDate }} to {{ item.endDate }}</small>
+        </span>
+        <b>{{ item.estimatedCost | currency: 'INR' }}</b>
+      </button>
+    </aside>
+
+    <form #submitForm="ngForm" class="card section request-form" (ngSubmit)="sendRequest()">
+      <div class="section-title">
+        <div>
+          <h2>{{ selectedDraftId ? 'Edit Before Sending' : 'Select a Draft' }}</h2>
+          <p>Drafts stay editable until they are sent into the approval flow.</p>
+        </div>
+      </div>
+
+      <fieldset [disabled]="!selectedDraftId || saving">
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="employeeName">Employee Name</label>
+            <input id="employeeName" name="employeeName" readonly [(ngModel)]="request.employeeName" />
+          </div>
+
+          <div class="form-field">
+            <label for="department">Department</label>
+            <input id="department" name="department" readonly [(ngModel)]="request.department" />
+          </div>
+
+          <div class="form-field">
+            <label for="destination">Destination</label>
+            <input id="destination" name="destination" required [(ngModel)]="request.destination" />
+          </div>
+
+          <div class="form-field">
+            <label for="travelClass">Travel Class</label>
+            <select id="travelClass" name="travelClass" [(ngModel)]="request.travelClass">
+              <option *ngFor="let item of travelClasses" [value]="item">{{ item }}</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="startDate">Start Date</label>
+            <input id="startDate" name="startDate" type="date" required [(ngModel)]="request.startDate" />
+          </div>
+
+          <div class="form-field">
+            <label for="endDate">End Date</label>
+            <input id="endDate" name="endDate" type="date" required [(ngModel)]="request.endDate" />
+          </div>
+
+          <div class="form-field">
+            <label for="estimatedCost">Estimated Cost</label>
+            <input id="estimatedCost" name="estimatedCost" type="number" min="1" required [(ngModel)]="request.estimatedCost" />
+          </div>
+        </div>
+
+        <div class="form-field form-wide">
+          <label for="purpose">Purpose</label>
+          <textarea id="purpose" name="purpose" required [(ngModel)]="request.purpose"></textarea>
+        </div>
+      </fieldset>
+
+      <div *ngIf="policyViolations.length > 0 && selectedDraftId" class="policy-box">
+        <strong>Policy Flags</strong>
+        <ul>
+          <li *ngFor="let violation of policyViolations">
+            {{ violation.severity }}: {{ violation.message }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="actions">
+        <button
+          class="btn btn-secondary"
+          type="button"
+          (click)="saveChanges()"
+          [disabled]="!selectedDraftId || submitForm.invalid || saving">
+          Save Changes
+        </button>
+        <button
+          class="btn btn-primary"
+          type="submit"
+          [disabled]="!selectedDraftId || submitForm.invalid || saving">
+          Send Request
+        </button>
+        <button
+          class="btn btn-danger"
+          type="button"
+          (click)="deleteDraft(request)"
+          [disabled]="!selectedDraftId || saving">
+          Delete Draft
+        </button>
+      </div>
+    </form>
+  </section>
+</section>

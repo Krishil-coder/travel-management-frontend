@@ -1,9 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TravelRequest } from '@core/models/travel-request.model';
 import { AuthService } from '@core/services/auth.service';
 import { ApprovalService } from '@core/services/approval.service';
+import {
+  FinanceRequestDetailsResponse,
+  ManagerRequestDetailsResponse
+} from '@core/services/travel-request.service';
 
 @Component({
   selector: 'app-approval',
@@ -17,11 +20,12 @@ export class ApprovalComponent {
   private readonly approvalService = inject(ApprovalService);
   private readonly fb = inject(FormBuilder);
   selectedView: 'manager' | 'finance' = this.authService.getRole() === 'FINANCE' ? 'finance' : 'manager';
+  readonly maxCommentLength = 1000;
   message = '';
   loading = false;
   commentForms: Record<string, FormGroup<{ comment: FormControl<string> }>> = {};
-  managerRequests: TravelRequest[] = [];
-  financeRequests: TravelRequest[] = [];
+  managerRequests: ManagerRequestDetailsResponse[] = [];
+  financeRequests: FinanceRequestDetailsResponse[] = [];
 
   constructor() {
     this.refreshRequests();
@@ -35,53 +39,53 @@ export class ApprovalComponent {
     return true;
   }
 
-  approveManager(request: TravelRequest): void {
+  approveManager(request: ManagerRequestDetailsResponse): void {
     if (!this.canViewManagerApprovals) {
       return;
     }
 
-    if (!this.hasValidComment(request.id)) return;
-    this.approvalService.approveByManager(request, this.getComment(request.id)).subscribe({
-      next: () => this.afterAction(request.id + ' sent to finance.', request.id),
+    if (!this.hasValidComment(request.requestId)) return;
+    this.approvalService.approveByManager(request, this.getComment(request.requestId)).subscribe({
+      next: () => this.afterAction(request.requestId + ' sent to finance.', request.requestId),
       error: () => this.message = 'Could not approve request.'
     });
   }
 
-  approveFinance(request: TravelRequest): void {
+  approveFinance(request: FinanceRequestDetailsResponse): void {
     if (!this.canViewFinanceApprovals) {
       return;
     }
 
-    if (!this.hasValidComment(request.id)) return;
-    this.approvalService.approveByFinance(request, this.getComment(request.id)).subscribe({
-      next: () => this.afterAction(request.id + ' approved and finalized.', request.id),
-      error: () => this.message = 'Could not approve request.'
+    if (!this.hasValidComment(request.requestId)) return;
+    this.approvalService.approveByFinance(request, this.getComment(request.requestId)).subscribe({
+      next: () => this.afterAction(request.requestId + ' approved and finalized.', request.requestId),
+      error: (error) => this.message = error?.message || 'Could not approve request.'
     });
   }
 
-  rejectByManager(request: TravelRequest): void {
+  rejectByManager(request: ManagerRequestDetailsResponse): void {
     if (!this.canViewManagerApprovals) {
       return;
     }
 
     if (!confirm('Reject this request?')) return;
-    if (!this.hasValidComment(request.id)) return;
-    this.approvalService.rejectByManager(request, this.getComment(request.id)).subscribe({
-      next: () => this.afterAction(request.id + ' rejected.', request.id),
+    if (!this.hasValidComment(request.requestId)) return;
+    this.approvalService.rejectByManager(request, this.getComment(request.requestId)).subscribe({
+      next: () => this.afterAction(request.requestId + ' rejected.', request.requestId),
       error: () => this.message = 'Could not reject request.'
     });
   }
 
-  rejectByFinance(request: TravelRequest): void {
+  rejectByFinance(request: FinanceRequestDetailsResponse): void {
     if (!this.canViewFinanceApprovals) {
       return;
     }
 
     if (!confirm('Reject this request?')) return;
-    if (!this.hasValidComment(request.id)) return;
-    this.approvalService.rejectByFinance(request, this.getComment(request.id)).subscribe({
-      next: () => this.afterAction(request.id + ' rejected.', request.id),
-      error: () => this.message = 'Could not reject request.'
+    if (!this.hasValidComment(request.requestId)) return;
+    this.approvalService.rejectByFinance(request, this.getComment(request.requestId)).subscribe({
+      next: () => this.afterAction(request.requestId + ' rejected.', request.requestId),
+      error: (error) => this.message = error?.message || 'Could not reject request.'
     });
   }
 
@@ -92,7 +96,7 @@ export class ApprovalComponent {
       this.approvalService.getManagerApprovals().subscribe({
         next: (requests) => {
           this.managerRequests = requests;
-          this.prepareCommentForms(requests);
+          this.prepareCommentForms(requests, true);
           this.loading = false;
         },
         error: () => {
@@ -106,7 +110,7 @@ export class ApprovalComponent {
       this.approvalService.getFinanceApprovals().subscribe({
         next: (requests) => {
           this.financeRequests = requests;
-          this.prepareCommentForms(requests);
+          this.prepareCommentForms(requests, false);
           this.loading = false;
         },
         error: () => {
@@ -117,37 +121,40 @@ export class ApprovalComponent {
     }
   }
 
-  private afterAction(message: string, id: string): void {
+  private afterAction(message: string, id: number): void {
     this.message = message;
     this.clearComment(id);
     this.refreshRequests();
   }
 
-  private getComment(id: string): string {
+  private getComment(id: number): string {
     return this.commentForms[id]?.controls.comment.value.trim() ?? '';
   }
 
-  private clearComment(id: string): void {
+  private clearComment(id: number): void {
     this.commentForms[id]?.reset({ comment: '' });
   }
 
-  private hasValidComment(id: string): boolean {
+  private hasValidComment(id: number): boolean {
     const form = this.commentForms[id];
 
     if (!form || form.invalid) {
       form?.markAllAsTouched();
-      this.message = 'Please add an approval comment.';
+      this.message = 'Please check the approval comment.';
       return false;
     }
 
     return true;
   }
 
-  private prepareCommentForms(requests: TravelRequest[]): void {
+  private prepareCommentForms(
+    requests: Array<ManagerRequestDetailsResponse | FinanceRequestDetailsResponse>,
+    required: boolean
+  ): void {
     for (const request of requests) {
-      if (!this.commentForms[request.id]) {
-        this.commentForms[request.id] = this.fb.nonNullable.group({
-          comment: ['', Validators.required]
+      if (!this.commentForms[request.requestId]) {
+        this.commentForms[request.requestId] = this.fb.nonNullable.group({
+          comment: ['', required ? [Validators.required, Validators.maxLength(this.maxCommentLength)] : Validators.maxLength(this.maxCommentLength)]
         });
       }
     }

@@ -1,97 +1,245 @@
-<section>
-  <h1 class="page-title">Expense</h1>
-  <p class="page-subtitle">Submit and view travel expenses.</p>
+<section class="expense-page">
+  <div class="expense-header">
+    <div>
+      <h1 class="page-title">Expense Submission</h1>
+      <p class="page-subtitle">Submit and track claims for this approved travel request.</p>
+    </div>
+    <a class="btn btn-secondary" [routerLink]="['/requests', requestId]">Back</a>
+  </div>
+
   <div *ngIf="loading" class="empty-state">Loading expenses...</div>
 
-  <div class="grid grid-3">
+  <section class="card section request-summary" *ngIf="request">
+    <div>
+      <span class="summary-eyebrow">Travel Request</span>
+      <h2>#{{ formatRequestNumber(request.id) }}</h2>
+    </div>
+    <div class="summary-grid">
+      <div>
+        <span>Destination</span>
+        <strong>{{ request.destination }}</strong>
+      </div>
+      <div>
+        <span>Travel Dates</span>
+        <strong>{{ travelDateRangeLabel }}</strong>
+      </div>
+      <div>
+        <span>Approved Budget</span>
+        <strong>{{ request.estimatedCost | currency: 'INR' }}</strong>
+      </div>
+      <div>
+        <span>Request Status</span>
+        <strong>{{ formatRequestStatus(request.status) }}</strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="card section workflow-card">
+    <h2>Workflow Progress</h2>
+    <div class="workflow-steps">
+      <div
+        class="workflow-step"
+        *ngFor="let stage of workflowStages; let i = index"
+        [ngClass]="getWorkflowStageClass(i)">
+        <span class="workflow-dot">{{ i + 1 }}</span>
+        <span>{{ stage }}</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="summary-cards">
     <div class="card section stat-card">
-      <p>Total Expenses</p>
+      <p>Total Claimed</p>
       <strong>{{ totalExpenseAmount | currency: 'INR' }}</strong>
-      <span class="muted">Submitted by you</span>
+      <span>All submitted claims</span>
+    </div>
+    <div class="card section stat-card stat-blue">
+      <p>Pending Approval</p>
+      <strong>{{ pendingExpenseAmount | currency: 'INR' }}</strong>
+      <span>Awaiting finance review</span>
+    </div>
+    <div class="card section stat-card stat-green">
+      <p>Approved Expenses</p>
+      <strong>{{ approvedExpenseAmount | currency: 'INR' }}</strong>
+      <span>Approved or reimbursed</span>
+    </div>
+    <div class="card section stat-card stat-red">
+      <p>Rejected Expenses</p>
+      <strong>{{ rejectedExpenseAmount | currency: 'INR' }}</strong>
+      <span>Declined claims</span>
     </div>
   </div>
 
-  <form class="card section" [formGroup]="expenseForm" (ngSubmit)="addExpense()">
+  <form class="card section expense-form" [formGroup]="expenseForm" (ngSubmit)="addExpense()">
+    <div class="section-heading">
+      <div>
+        <h2>Add Expense</h2>
+        <p>Attach receipt details and submit to finance.</p>
+      </div>
+      <span class="request-chip">{{ formatRequestNumber() }}</span>
+    </div>
+
+    <input type="hidden" formControlName="travelRequestId" />
+
     <div class="form-grid">
       <div class="form-field">
-        <label for="travelRequestId">Travel Request ID</label>
-        <select id="travelRequestId" formControlName="travelRequestId">
-          <option value="">Select approved request</option>
-          <option *ngFor="let request of approvedRequests" [value]="request.id">
-            {{ request.id }} - {{ request.destination }}
-          </option>
-        </select>
-        <span *ngIf="expenseForm.controls.travelRequestId.touched && expenseForm.controls.travelRequestId.invalid" class="error">
-          Travel request is required.
+        <label for="expenseDate">Expense Date</label>
+        <input
+          id="expenseDate"
+          type="date"
+          formControlName="expenseDate"
+          [min]="travelStartDateInput"
+          [max]="travelEndDateInput" />
+        <span *ngIf="expenseForm.controls.expenseDate.touched && expenseForm.controls.expenseDate.hasError('required')" class="error">
+          Expense date is required.
+        </span>
+        <span *ngIf="expenseForm.controls.expenseDate.touched && expenseForm.controls.expenseDate.hasError('travelDateRange')" class="error">
+          Expense date must be between {{ formatDate(request?.startDate) }} and {{ formatDate(request?.endDate) }}.
         </span>
       </div>
 
       <div class="form-field">
-        <label for="category">Category</label>
+        <label for="category">Expense Category</label>
         <select id="category" formControlName="category">
-          <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+          <option *ngFor="let category of categories" [value]="category.value">{{ category.label }}</option>
         </select>
       </div>
 
       <div class="form-field">
         <label for="amount">Amount</label>
-        <input id="amount" type="number" min="1" formControlName="amount" />
+        <input id="amount" type="number" min="1" formControlName="amount" placeholder="₹ Enter amount" />
         <span *ngIf="expenseForm.controls.amount.touched && expenseForm.controls.amount.invalid" class="error">
           Enter a positive amount.
         </span>
       </div>
 
       <div class="form-field">
-        <label for="proof">Upload Proof</label>
-        <input id="proof" type="file" (change)="onProofSelected($event)" />
-        <span class="muted" *ngIf="selectedFileName">Selected: {{ selectedFileName }}</span>
+        <label for="segmentType">Segment Type *</label>
+        <select id="segmentType" formControlName="segmentType">
+          <option value="">Select segment type</option>
+          <option *ngFor="let segmentType of segmentTypes" [value]="segmentType">{{ segmentType }}</option>
+        </select>
+        <span *ngIf="expenseForm.controls.segmentType.touched && expenseForm.controls.segmentType.invalid" class="error">
+          Segment type is required.
+        </span>
+      </div>
+
+      <div class="form-field">
+        <label for="fromLocation">From Location *</label>
+        <input id="fromLocation" formControlName="fromLocation" placeholder="Hotel Orchid" />
+        <span *ngIf="expenseForm.controls.fromLocation.touched && expenseForm.controls.fromLocation.invalid" class="error">
+          From location is required.
+        </span>
+      </div>
+
+      <div class="form-field">
+        <label for="toLocation">To Location *</label>
+        <input id="toLocation" formControlName="toLocation" placeholder="Client office" />
+        <span *ngIf="expenseForm.controls.toLocation.touched && expenseForm.controls.toLocation.invalid" class="error">
+          To location is required.
+        </span>
+      </div>
+
+      <div class="form-field">
+        <label for="startTime">Start Time *</label>
+        <input id="startTime" type="time" formControlName="startTime" />
+        <span *ngIf="expenseForm.controls.startTime.touched && expenseForm.controls.startTime.invalid" class="error">
+          Start time is required.
+        </span>
+      </div>
+
+      <div class="form-field">
+        <label for="endTime">End Time *</label>
+        <input id="endTime" type="time" formControlName="endTime" />
+        <span *ngIf="expenseForm.controls.endTime.touched && expenseForm.controls.endTime.invalid" class="error">
+          End time is required.
+        </span>
+      </div>
+
+      <div class="form-field upload-field">
+        <label>Receipt</label>
+        <input
+          #receiptInput
+          class="file-input"
+          id="proof"
+          type="file"
+          accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+          (change)="onProofSelected($event)" />
+        <button
+          class="receipt-dropzone"
+          type="button"
+          (click)="receiptInput.click()"
+          (dragover)="onReceiptDragOver($event)"
+          (drop)="onReceiptDrop($event)">
+          <strong>Upload Receipt</strong>
+          <span>PDF JPG PNG</span>
+          <small>Max 5MB</small>
+          <em *ngIf="selectedFileName">{{ selectedFileName }}</em>
+        </button>
       </div>
     </div>
 
     <div class="form-field form-wide">
-      <label for="description">Description</label>
-      <textarea id="description" formControlName="description"></textarea>
-      <span *ngIf="expenseForm.controls.description.touched && expenseForm.controls.description.invalid" class="error">
-        Description is required.
-      </span>
+      <label for="description">Details</label>
+      <textarea id="description" formControlName="description" placeholder="Taxi from hotel to client office"></textarea>
     </div>
 
-    <div *ngIf="approvedRequests.length === 0" class="empty-state" style="margin-top: 16px;">
-      No approved travel requests found. Expenses can be submitted only after finance approves a travel request.
+    <div *ngIf="approvedRequests.length === 0" class="empty-state form-alert">
+      Expenses can be submitted only when this request is FINANCE_APPROVED.
     </div>
 
     <p *ngIf="message" class="success-message">{{ message }}</p>
-    <button class="btn btn-primary" type="submit" [disabled]="expenseForm.invalid || approvedRequests.length === 0">Submit Expense</button>
+    <div class="actions">
+      <button class="btn btn-secondary" type="button" (click)="saveDraft()">Save Draft</button>
+      <button class="btn btn-primary" type="submit" [disabled]="expenseForm.invalid || approvedRequests.length === 0">Submit Expense</button>
+      <a class="btn btn-secondary" [routerLink]="['/requests', requestId]">Back</a>
+    </div>
   </form>
 
-  <div class="card section table-wrap">
-    <h2>Expense List</h2>
-    <table>
+  <section class="card section table-wrap expense-history">
+    <div class="section-heading">
+      <div>
+        <h2>Expense History</h2>
+        <p>{{ expenses.length }} claim{{ expenses.length === 1 ? '' : 's' }} recorded for this trip.</p>
+      </div>
+    </div>
+
+    <table *ngIf="expenses.length > 0">
       <thead>
         <tr>
-          <th>Id</th>
-          <th>Request</th>
+          <th>Date</th>
+          <th>Segment</th>
+          <th>Route</th>
+          <th>Time</th>
           <th>Category</th>
           <th>Amount</th>
-          <th>Proof</th>
+          <th>Receipt</th>
           <th>Status</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let item of expenses">
-          <td>{{ item.id }}</td>
-          <td>{{ item.travelRequestId }}</td>
-          <td>{{ item.category }}</td>
+          <td>{{ formatDate(item.expenseDate || item.createdAt) }}</td>
+          <td>{{ item.segmentType || '-' }}</td>
+          <td>{{ item.fromLocation || '-' }} to {{ item.toLocation || '-' }}</td>
+          <td>{{ item.startTime || '-' }} - {{ item.endTime || '-' }}</td>
+          <td>{{ getCategoryLabel(item.category) }}</td>
           <td>{{ item.amount | currency: 'INR' }}</td>
           <td>{{ item.proofFileName || 'Not attached' }}</td>
           <td>
             <span class="status-pill" [ngClass]="getStatusClass(item.reimbursementStatus)">
-              {{ item.reimbursementStatus }}
+              {{ getDisplayStatus(item.reimbursementStatus) }}
             </span>
+          </td>
+          <td>
+            <button class="btn btn-secondary btn-small" type="button" (click)="viewReceipt(item)" [disabled]="!item.proofFileName">
+              View
+            </button>
           </td>
         </tr>
       </tbody>
     </table>
     <div *ngIf="expenses.length === 0" class="empty-state">No expenses found.</div>
-  </div>
+  </section>
 </section>

@@ -182,14 +182,25 @@ export class AdminService {
   private toSavePayload(
     user:SaveAdminUser
   ){
+    const firstName = user.firstName.trim();
+    const lastName = user.lastName.trim();
+    const enabled = user.enabled;
 
     return {
+      name:
+      `${firstName} ${lastName}`.trim(),
 
       firstName:
-      user.firstName.trim(),
+      firstName,
+
+      firstname:
+      firstName,
 
       lastName:
-      user.lastName.trim(),
+      lastName,
+
+      lastname:
+      lastName,
 
       email:
       user.email.trim(),
@@ -198,7 +209,7 @@ export class AdminService {
       user.password?.trim(),
 
       role:
-      user.role,
+      this.toApiRole(user.role),
 
       department:
       user.department.trim(),
@@ -207,7 +218,10 @@ export class AdminService {
       user.managerId,
 
       enabled:
-      user.enabled
+      enabled,
+
+      status:
+      enabled ? 'ACTIVE' : 'INACTIVE'
 
     };
 
@@ -217,6 +231,8 @@ export class AdminService {
     user:any
   ):AdminUser{
 
+    const nameParts = String(user.name || '').trim().split(/\s+/);
+
     return {
 
       id:
@@ -225,11 +241,13 @@ export class AdminService {
       firstName:
       user.firstName ||
       user.firstname ||
+      nameParts[0] ||
       '',
 
       lastName:
       user.lastName ||
       user.lastname ||
+      nameParts.slice(1).join(' ') ||
       '',
 
       email:
@@ -237,7 +255,7 @@ export class AdminService {
       '',
 
       role:
-      user.role,
+      this.toAppRole(user.role),
 
       department:
       user.department ||
@@ -249,6 +267,7 @@ export class AdminService {
 
       managerName:
       user.managerName ||
+      user.manager ||
       '',
 
       enabled:
@@ -260,6 +279,35 @@ export class AdminService {
 
     };
 
+  }
+
+  private toApiRole(role: AdminUser['role']): string {
+    return role === 'FINANCE' ? 'FINANCER' : role;
+  }
+
+  private toAppRole(role: string): AdminUser['role'] {
+    const normalizedRole = String(role || '')
+      .trim()
+      .toUpperCase()
+      .replace(/^ROLE_/, '');
+
+    if (normalizedRole === 'FINANCER' || normalizedRole === 'FINANCE_USER') {
+      return 'FINANCE';
+    }
+
+    if (
+      normalizedRole === 'ADMINISTRATOR' ||
+      normalizedRole === 'ADMINISTRATION' ||
+      normalizedRole === 'ADMINISTARION'
+    ) {
+      return 'ADMIN';
+    }
+
+    if (['EMPLOYEE', 'MANAGER', 'FINANCE', 'ADMIN'].includes(normalizedRole)) {
+      return normalizedRole as AdminUser['role'];
+    }
+
+    return 'EMPLOYEE';
   }
 
 }

@@ -1,11 +1,23 @@
-<section>
-  <h1 class="page-title">Report</h1>
-  <p class="page-subtitle">Travel cost, employee history, department spend, and policy exception reports.</p>
+<section class="page-shell">
+  <header class="page-hero">
+    <div>
+      <p class="eyebrow">Admin</p>
+      <h1>Reports</h1>
+      <p>Review travel cost, employee history, department spend, and policy exceptions.</p>
+    </div>
+  </header>
+
   <div *ngIf="loading" class="empty-state">Loading reports...</div>
   <div *ngIf="message" class="empty-state">{{ message }}</div>
 
   <form class="card section" [formGroup]="filterForm" (ngSubmit)="applyFilters()">
-    <h2>Filters</h2>
+    <div class="section-heading">
+      <div>
+        <h2>Report Filters</h2>
+        <p>Narrow travel history by date, department, and workflow status.</p>
+      </div>
+    </div>
+
     <div class="form-grid">
       <div class="form-field">
         <label for="startDate">Start Date</label>
@@ -30,96 +42,126 @@
         </select>
       </div>
     </div>
-    <div class="actions">
+    <div class="actions" style="margin-top: 18px;">
       <button class="btn btn-primary" type="submit">Apply Filters</button>
       <button class="btn btn-secondary" type="button" (click)="clearFilters()">Clear</button>
     </div>
   </form>
 
   <div class="grid grid-3">
-    <div class="card section" *ngFor="let item of summary">
-      <p class="muted">{{ item.label }}</p>
-      <strong class="report-value">{{ item.value }}</strong>
-      <p>{{ item.trend }}</p>
+    <div class="card section metric-card" *ngFor="let item of summary">
+      <p>{{ item.label }}</p>
+      <strong>{{ item.value }}</strong>
+      <span>{{ item.trend }}</span>
     </div>
-  </div>
-
-  <div class="card section table-wrap">
-    <h2>Department Spend</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Department</th>
-          <th>Trips</th>
-          <th>Spend</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let item of departmentSpend">
-          <td>{{ item.department }}</td>
-          <td>{{ item.trips }}</td>
-          <td>{{ item.spend | currency: 'INR' }}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="card section table-wrap">
-    <h2>Monthly Cost</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Month</th>
-          <th>Requests</th>
-          <th>Cost</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let item of monthlyCosts">
-          <td>{{ item.month | uppercase }}</td>
-          <td>{{ item.requests }}</td>
-          <td>{{ item.cost | currency: 'INR' }}</td>
-        </tr>
-      </tbody>
-    </table>
   </div>
 
   <div class="grid grid-2">
-    <div class="card section table-wrap">
-      <h2>Employee Travel History</h2>
-      <table>
-        <thead>
-          <tr><th>Employee</th><th>Request</th><th>Department</th><th>Destination</th><th>Status</th><th>Cost</th></tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let item of employeeHistory">
-            <td>{{ item.employee }}</td>
-            <td>{{ item.requestId }}</td>
-            <td>{{ item.department }}</td>
-            <td>{{ item.destination }}</td>
-            <td>{{ item.status }}</td>
-            <td>{{ item.cost | currency: 'INR' }}</td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="card section table-card">
+      <div class="section-heading">
+        <div>
+          <h2>Department Spend</h2>
+          <p>Spend grouped by department.</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Department</th>
+              <th>Trips</th>
+              <th>Spend</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of departmentSpend">
+              <td>{{ item.department }}</td>
+              <td>{{ item.trips }}</td>
+              <td>{{ item.spend | currency: 'INR' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
-    <div class="card section table-wrap">
-      <h2>Policy Exceptions</h2>
+    <div class="card section table-card">
+      <div class="section-heading">
+        <div>
+          <h2>Monthly Cost</h2>
+          <p>Request volume and cost over time.</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Month</th>
+              <th>Requests</th>
+              <th>Cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of monthlyCosts">
+              <td>{{ item.month | uppercase }}</td>
+              <td>{{ item.requests }}</td>
+              <td>{{ item.cost | currency: 'INR' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card section table-card">
+      <div class="section-heading">
+        <div>
+          <h2>Employee Travel History</h2>
+          <p>Filtered request history for audit review.</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Employee</th><th>Request</th><th>Department</th><th>Destination</th><th>Status</th><th>Cost</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of employeeHistory">
+              <td>{{ item.employee }}</td>
+              <td>{{ item.requestId }}</td>
+              <td>{{ item.department }}</td>
+              <td>{{ item.destination }}</td>
+              <td>{{ item.status }}</td>
+              <td>{{ item.cost | currency: 'INR' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card section table-card">
+      <div class="section-heading">
+        <div>
+          <h2>Policy Exceptions</h2>
+          <p>Requests that exceeded configured rules.</p>
+        </div>
+      </div>
       <div *ngIf="policyExceptions.length === 0" class="empty-state">No policy exceptions found.</div>
-      <table *ngIf="policyExceptions.length > 0">
-        <thead>
-          <tr><th>Request</th><th>Employee</th><th>Severity</th><th>Message</th></tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let item of policyExceptions">
-            <td>{{ item.requestId }}</td>
-            <td>{{ item.employee }}</td>
-            <td>{{ item.severity }}</td>
-            <td>{{ item.message }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="table-wrap">
+        <table *ngIf="policyExceptions.length > 0">
+          <thead>
+            <tr><th>Request</th><th>Employee</th><th>Severity</th><th>Message</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of policyExceptions">
+              <td>{{ item.requestId }}</td>
+              <td>{{ item.employee }}</td>
+              <td>{{ item.severity }}</td>
+              <td>{{ item.message }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </section>

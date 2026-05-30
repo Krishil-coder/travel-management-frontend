@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { TravelRequest } from '@core/models/travel-request.model';
 import { TravelRequestService } from '@core/services/travel-request.service';
 import { StatusBadgeComponent } from '@shared/components/status-badge/status-badge.component';
@@ -7,7 +8,7 @@ import { StatusBadgeComponent } from '@shared/components/status-badge/status-bad
 @Component({
   selector: 'app-request-list',
   standalone: true,
-  imports: [CommonModule, StatusBadgeComponent],
+  imports: [CommonModule, RouterLink, StatusBadgeComponent],
   templateUrl: './request-list.component.html'
 })
 export class RequestListComponent {
@@ -16,17 +17,17 @@ export class RequestListComponent {
   message = '';
 
   constructor() {
-    this.travelRequestService.getRequests().subscribe({
+    this.travelRequestService.getMyRequests().subscribe({
       next: (requests) => this.requests = requests,
       error: () => this.message = 'Unable to load requests.'
     });
   }
 
-  exportCsv(): void {
-    this.message = `${this.requests.length} requests ready for CSV export.`;
+  get draftRequests(): TravelRequest[] {
+    return this.requests.filter((request) => request.status === 'DRAFT');
   }
 
-  viewRequest(id: string): void {
-    this.message = `Viewing request ${id}. Details are shown in this row and the approval timeline.`;
+  get submittedRequests(): TravelRequest[] {
+    return this.requests.filter((request) => request.status !== 'DRAFT');
   }
 }

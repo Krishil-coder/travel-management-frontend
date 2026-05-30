@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TravelRequest } from '@core/models/travel-request.model';
-import { TravelRequestService } from '@core/services/travel-request.service';
+import {
+  FinanceRequestDetailsResponse,
+  TravelRequestService
+} from '@core/services/travel-request.service';
 
 @Component({
   selector: 'app-finance',
@@ -13,7 +15,7 @@ import { TravelRequestService } from '@core/services/travel-request.service';
 })
 export class FinanceComponent {
   private readonly requestService = inject(TravelRequestService);
-  pendingRequests: TravelRequest[] = [];
+  pendingRequests: FinanceRequestDetailsResponse[] = [];
 
   constructor() {
     this.requestService.getFinanceApprovals().subscribe({

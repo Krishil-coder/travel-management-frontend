@@ -6,13 +6,13 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #101828;
+  background: #111827;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 16px 0 34px rgba(15, 23, 42, 0.14);
 }
 
 .sidebar-header {
-  padding: 24px 22px;
+  padding: 24px 20px 18px;
 }
 
 .brand {
@@ -26,7 +26,7 @@
   width: 44px;
   height: 44px;
   border-radius: 8px;
-  background: var(--primary);
+  background: linear-gradient(135deg, var(--primary), #14b8a6);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -55,23 +55,38 @@
   }
 }
 
-.nav-menu {
+.nav-section {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 8px 14px 18px;
+}
+
+.nav-section-title {
+  margin: 0 20px 10px;
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 0 14px 18px;
   overflow-y: auto;
 }
 
 .nav-link {
-  min-height: 44px;
+  min-height: 46px;
   display: flex;
   align-items: center;
   gap: 12px;
   border-radius: 8px;
   padding: 0 12px;
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(255, 255, 255, 0.74);
   font-size: 0.92rem;
   font-weight: 700;
   transition: background 0.16s ease, color 0.16s ease;
@@ -83,7 +98,8 @@
 
   &.active {
     background: #ffffff;
-    color: #101828;
+    color: #0f172a;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.16);
   }
 }
 
@@ -119,7 +135,7 @@
   margin: 14px;
   padding: 14px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.07);
 }
 
 .user-profile {
@@ -215,6 +231,7 @@
   }
 
   .brand-copy,
+  .nav-section-title,
   .nav-label,
   .user-info,
   .logout-btn {
@@ -222,7 +239,7 @@
   }
 
   .nav-menu {
-    padding: 6px 10px 14px;
+    padding: 0 10px 14px;
   }
 
   .nav-link {
